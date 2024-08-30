@@ -1,5 +1,5 @@
 <template>
-    <div class="flex items-center justify-between">
+    <div class="flex items-center h-28 w-full justify-center fill-current text-gray-500">
         <div class="letter-tiles">
             <span class="emerald">
                 P
@@ -44,5 +44,5 @@
                 S
             </span>
         </div>
-    </div>    
+    </div>   
 </template>

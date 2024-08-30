@@ -1,6 +1,8 @@
 <script setup>
 import Loader from '@/Components/Loader.vue';
-import { ref } from 'vue';
+import { ref, defineEmits } from 'vue';
+
+const emit = defineEmits(['dataReturned'])
 
 const props = defineProps({
     loadingText: {
@@ -34,6 +36,8 @@ const loadData = function () {
         if (props.finishedText === null) {
             onCompleteText.value = 'found ' + response.data.length + ' results';
         }
+
+        emit('dataReturned', response.data);
     });
 };
 

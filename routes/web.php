@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SpotifyConnectController;
 use App\Http\Controllers\SpotifyApiController;
+use App\Http\Controllers\SpotifyPlaylistConfigurationController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -29,7 +30,12 @@ Route::middleware('auth')->group(function () {
     /*
      * SPOTIFY API
      */
-    Route::get('/spotify/get-data/{identifier}', [SpotifyApiController::class, 'getData'])->name('spotify.get-data');
+    Route::get('/spotify/get-data/{identifier}/{url}', [SpotifyApiController::class, 'getData'])->name('spotify.get-data');
+
+    /*
+     * SPOTIFY PLAYLISTS CONFIGURE
+     */
+    Route::get('/spotify/playlist/configure/{playlistId}', [SpotifyPlaylistConfigurationController::class, 'index'])->name('spotify-playlist.index');
 });
 
 require __DIR__.'/auth.php';

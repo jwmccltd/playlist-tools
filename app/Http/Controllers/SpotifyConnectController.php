@@ -85,21 +85,6 @@ class SpotifyConnectController extends Controller
                 Auth::login($spotUser);
 
                 return redirect()->route('dashboard');
-
-                // Set up cURL
-                /*$ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $apiUrl.'/me/playlists');
-                curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                    'Authorization: Bearer ' . $accessToken,
-                ]);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-                // Execute the request
-                $response = curl_exec($ch);
-                // Decode the response JSON.
-                $data = json_decode($response, true);
-
-                dd($data);*/
             }
         } else {
             echo "Error: Unable to retrieve access token.";

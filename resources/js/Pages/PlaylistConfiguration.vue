@@ -1,7 +1,6 @@
 <script setup>
 import LayoutBase from '@/Layouts/LayoutBase.vue';
 import LayoutFull from '@/Layouts/LayoutFull.vue';
-import MyPlaylists from '@/Components/MyPlaylists.vue';
 import { Head } from '@inertiajs/vue3';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 </script>
@@ -17,7 +16,7 @@ import ApplicationLogo from '@/Components/ApplicationLogo.vue';
                 </template>
 
                 <template #content>
-                    <MyPlaylists class="main-content"/>
+                    Hello
                 </template>    
             </LayoutFull>
         </template>

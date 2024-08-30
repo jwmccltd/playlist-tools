@@ -1,19 +1,18 @@
 <script setup>
+import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import { Link } from '@inertiajs/vue3';
 </script>
 
 <template>
-    <div>
+    <div class="">
         <div>
             <Link href="/">
                 <slot name="logo"/>
             </Link>
         </div>
 
-        <div class="flex justify-center">
-            <div class="main-content-small">
-                <slot name="content"/>
-            </div>
+        <div class="main-content-full">
+            <slot name="content"/>
         </div>
     </div>
 </template>

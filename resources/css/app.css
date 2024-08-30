@@ -85,3 +85,16 @@
      */
     animation-delay: .4s;
 }
+
+.playlist-tile {
+    height: 200px;
+    width: auto;
+}
+
+.main-content-full {
+    @apply w-full mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg;
+}
+
+.main-content-small {
+    @apply max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg;
+}
