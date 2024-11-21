@@ -52,12 +52,18 @@ class SpotifyConnectController extends Controller
             // API endpoint URL
             $apiUrl = env('SPOTIFY_API_URL');
 
-            $response = $this->spotifyService->apiRequest($apiUrl . '/me', $accessToken);
+            $response = $this->spotifyService->apiRequest($apiUrl . 'me', $accessToken);
 
             // Check for errors
-            if ($response !== false) {
+            if ($response !== false && $response !== 'Error: Unable to retrieve access token.') {
                 // Decode the response JSON.
                 $data = json_decode($response, true);
+
+                // [TODO: Handle this with error page.]
+                if (isset($data['error'])) {
+                    echo $data['error']['message'];
+                    return;
+                }
 
                 $spotUser = User::where('spotify_id', $data['id'])->first();
                 if ($spotUser === null) {
@@ -87,7 +93,9 @@ class SpotifyConnectController extends Controller
                 return redirect()->route('dashboard');
             }
         } else {
+            // [TODO: Handle this with error page.]
             echo "Error: Unable to retrieve access token.";
+            return;
         }
     }
 }

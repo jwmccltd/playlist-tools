@@ -17,14 +17,17 @@ class SpotifyPlaylistConfigurationController extends Controller
         // Constructor
     }
 
-    public function index($playlistId) 
+    public function index($playlistId)
     {
         $data = $this->dataService->getData('playlist', 'playlists/' . $playlistId);
 
-        dd($data);
-
         return Inertia::render('PlaylistConfiguration', [
-            
+            'playlistId'          => $data['id'],
+            'playlistName'        => $data['name'],
+            'playlistDescription' => $data['description'],
+            'playlistImageUrl'    => $data['images'][0]['url'],
+            'playlistFollowers'   => (string) $data['followers']['total'] ?? '0',
+            'playlistTrackTotal'  => (string) $data['tracks']['total'] ?? '0',
         ]);
     }
 }

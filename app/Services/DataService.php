@@ -37,7 +37,8 @@ class DataService
             return json_decode($cacheData);
         }
 
-        $data = $this->spotifyService->apiRequest(env('SPOTIFY_API_URL') . '/' . $url);
+        $data = $this->spotifyService->apiRequest(env('SPOTIFY_API_URL') . str_replace(',', '/', $url));
+
         // Decode the response JSON.
         $data = json_decode($data, true);
         $returnData = [];
@@ -56,6 +57,7 @@ class DataService
         }
 
         $returnResults = [];
+
         foreach ($returnData as $i => $returnedData) {
             if (empty($returnedData) === false) {
                 foreach ($returnedData as $listing) {

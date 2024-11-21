@@ -23,14 +23,14 @@ const processPlaylists = (data) => {
 <template>
     <div>
         <div class="flex justify-center">
-            <DataLoader :loading-text="'finding your playlists'" :data-route="route('spotify.get-data', ['playlists', 'playlists'])" @dataReturned="processPlaylists"/>
+            <DataLoader :loading-text="'finding your playlists'" :data-route="route('spotify.get-data', ['playlists', ['me','playlists']])" @dataReturned="processPlaylists"/>
         </div>
 
-        <div v-if="playlists.length > 0" class="flex flex-wrap justify-center">
+        <div v-if="playlists.length > 0" class="flex items-end flex-wrap justify-center">
             <div v-for="playlist of playlists" :key="playlist.id" class="p-4">
-                <div class="flex flex-col">
+                <div class="flex flex-col max-w-52">
                     <div class="mb-2 text-center">
-                        <span class="text-lg font-bold">{{ playlist.name }}</span>
+                        <span class="text-lg font-bold text-wrap">{{ playlist.name }}</span>
                     </div>
                     <div>
                         <img :src="playlist.images[0].url" class="playlist-tile" />

@@ -112,9 +112,10 @@ class SpotifyService
      * Run an api request
      * @param string $apiUrl      The api url.
      * @param string $accessToken The access token.
-     * @return array
+     * @return string
      */
-    public function apiRequest($apiUrl, $accessToken = null) {
+    public function apiRequest($apiUrl, $accessToken = null) 
+    {
 
         // Get access token
         if ($accessToken === null) {
