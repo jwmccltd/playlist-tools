@@ -14,9 +14,7 @@ return new class extends Migration
         Schema::create('playlist_configuration_options', function (Blueprint $table) {
             $table->id();
             $table->string('name', 200);
-            $table->bigInteger('chains_to_playlist_configuration_id')->nullable();
-            $table->integer('chain_sequence')->nullable();
-            $table->timestamps();
+            $table->string('component', 200);
         });
     }
 

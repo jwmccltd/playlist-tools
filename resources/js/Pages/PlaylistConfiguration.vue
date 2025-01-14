@@ -2,13 +2,15 @@
 import LayoutBase from '@/Layouts/LayoutBase.vue';
 import LayoutFull from '@/Layouts/LayoutFull.vue';
 import { Head } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { markRaw, ref, watch } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { faPeopleGroup } from '@fortawesome/free-solid-svg-icons';
 import { faCompactDisc } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import TrackLimiter from '@/Components/PlaylistConfigs/TrackLimiter.vue';
 
 const props = defineProps({
     playlistId: {
@@ -28,8 +30,19 @@ const props = defineProps({
     },
     playlistTrackTotal: {
         type: String,
+    },
+    playlistConfigOptions: {
+        type: Array
     }
 });
+
+const configComponent = ref(null);
+const setComponent = (selectedComponent) => {
+    const lookup = {
+        TrackLimiter
+    }
+    configComponent.value = markRaw(lookup[selectedComponent])
+}
 
 const stringChars = (stringObject) => {
     const returnArray = [];
@@ -44,6 +57,12 @@ const configs = ref([]);
 const addNewConfig = () => {
     configs.value.push({});
 }
+
+const component = ref(0);
+
+watch(component, (value) => {
+    setComponent(value);
+});
 
 </script>
 
@@ -87,7 +106,7 @@ const addNewConfig = () => {
                             </div>
                             <div class="flex flex-row items-center">
                                 <div class="p-2">
-                                    <font-awesome-icon :icon="faCompactDisc" size="xl" class="cyan" />
+                                    <font-awesome-icon :icon="faCompactDisc" size="xl" class="cyan"/>
                                 </div>
                                 <div class="p-2">
                                     <div class="flex items-center w-full justify-center fill-current text-gray-500">
@@ -108,15 +127,26 @@ const addNewConfig = () => {
                     </div>
                 </template>    
             </LayoutFull>
-            <LayoutFull>
-                <template #content>
-                    <div v-for="(config, index) of configs" :key="index">
-                        <div>
-                            Hello
+            <div v-if="configs.length > 0" class="mt-8">
+                <div v-for="(config, index) of configs" :key="index">
+                    <div class="flex flex-row items-center">
+                        <div class="panel">
+                            <select class="emerald border text-sm rounded-lg block w-full p-2.5" v-model="component">
+                                <option value="0">Select Option</option>
+                                <option v-for="config of playlistConfigOptions" :key="config.id" :value="config.component">
+                                    {{ config.name }}
+                                </option>
+                            </select>    
+                        </div>
+                        <div class="mx-2" v-if="component !== 0">
+                            <font-awesome-icon :icon="faArrowRight" size="xl"/>
+                        </div> 
+                        <div class="panel" v-if="configComponent !== null">
+                            <component :is="configComponent"/>     
                         </div>
                     </div>
-                </template>    
-            </LayoutFull>
+                </div>
+            </div>
         </template>
     </LayoutBase>
 </template>

@@ -11,7 +11,13 @@ use Inertia\Inertia;
 /*
  * SPOTIFY CONNECT.
  */
-Route::get('/', [SpotifyConnectController::class, 'connect'])->name('connect');
+Route::get('/', function () {
+    return redirect()->route('connect');
+});
+Route::get('/login', function () {
+    return redirect()->route('connect');
+})->name('login');
+Route::get('/connect', [SpotifyConnectController::class, 'connect'])->name('connect');
 Route::get('/spotify-auth', [SpotifyConnectController::class, 'spotifyAuth'])->name('spotify.auth');
 
 /*
@@ -37,5 +43,3 @@ Route::middleware('auth')->group(function () {
      */
     Route::get('/spotify/playlist/configure/{playlistId}', [SpotifyPlaylistConfigurationController::class, 'index'])->name('spotify-playlist.index');
 });
-
-require __DIR__.'/auth.php';

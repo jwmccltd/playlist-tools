@@ -33,14 +33,15 @@ class DataService
     {
         $cacheData = $this->cacheService->loadCacheItem($identifier);
 
-        if ($cacheData !== null) {
+        /*if ($cacheData !== null) {
             return json_decode($cacheData);
-        }
+        }*/
 
         $data = $this->spotifyService->apiRequest(env('SPOTIFY_API_URL') . str_replace(',', '/', $url));
 
         // Decode the response JSON.
         $data = json_decode($data, true);
+
         $returnData = [];
 
         switch ($identifier) {
