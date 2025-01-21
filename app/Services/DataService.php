@@ -42,29 +42,58 @@ class DataService
         // Decode the response JSON.
         $data = json_decode($data, true);
 
-        $returnData = [];
+        $chunkedData = [];
+        $returnResults = [];
 
         switch ($identifier) {
             case 'playlists':
-                $returnData[] = $this->spotifyPlaylistService->filterUserPlaylists($data);
+                $chunkedData[] = $this->spotifyPlaylistService->filterUserPlaylists($data);
                 while (isset($data['next'])) {
                     $data = $this->spotifyService->apiRequest($data['next']);
                     $data = json_decode($data, true);
-                    $returnData[] = $this->spotifyPlaylistService->filterUserPlaylists($data);
+                    $chunkedData[] = $this->spotifyPlaylistService->filterUserPlaylists($data);
                 }
+
+                foreach ($chunkedData as $i => $chunkData) {
+                    if (empty($chunkData) === false) {
+                        foreach ($chunkData as $listing) {
+                            $returnResults[] = $listing;
+                        }
+                    }
+                }
+                
                 break;
+            case 'playlist':
+
+                $returnResults = $data;
+                $returnResults['all_tracks'] = [];
+
+                $data = $data['tracks'];
+
+                $chunkedData[] = $data['items'];
+                while (isset($data['next'])) {
+                    $data = $this->spotifyService->apiRequest($data['next']);
+                    $data = json_decode($data, true);        
+                    $chunkedData[] = $data['items'];
+                }
+
+                foreach ($chunkedData as $i => $chunkData) {
+                    if (empty($chunkData) === false) {
+                        $returnResults['all_tracks'] = array_merge($returnResults['all_tracks'], $chunkData);
+                    }
+                }
+
+                dd($returnResults);
+
+                /*$returnData[] = $data;
+                while (isset($data['items'])) {
+                    $data = $this->spotifyService->apiRequest($data['next']);
+                    $data = json_decode($data, true);
+                    $returnData[] = $data;
+                }*/
+                break;    
             default:
                 return $data ?? null;
-        }
-
-        $returnResults = [];
-
-        foreach ($returnData as $i => $returnedData) {
-            if (empty($returnedData) === false) {
-                foreach ($returnedData as $listing) {
-                    $returnResults[] = $listing;
-                }
-            }
         }
 
         $this->cacheService->setCacheItem($identifier, json_encode($returnResults), now()->addDays(1));

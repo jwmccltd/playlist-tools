@@ -129,7 +129,7 @@ watch(component, (value) => {
             </LayoutFull>
             <div v-if="configs.length > 0" class="mt-8">
                 <div v-for="(config, index) of configs" :key="index">
-                    <div class="flex flex-row items-center">
+                    <div class="flex flex-wrap items-center">
                         <div class="panel">
                             <select class="emerald border text-sm rounded-lg block w-full p-2.5" v-model="component">
                                 <option value="0">Select Option</option>
@@ -139,11 +139,11 @@ watch(component, (value) => {
                             </select>    
                         </div>
                         <div class="mx-2" v-if="component !== 0">
-                            <font-awesome-icon :icon="faArrowRight" size="xl"/>
+                            <div class="panel-small">
+                                <font-awesome-icon :icon="faArrowRight" size="xl" class="cyan"/>
+                            </div>    
                         </div> 
-                        <div class="panel" v-if="configComponent !== null">
-                            <component :is="configComponent"/>     
-                        </div>
+                        <component :is="configComponent" v-if="configComponent !== null"/>     
                     </div>
                 </div>
             </div>

@@ -113,7 +113,11 @@ svg.cyan {
 }
 
 .panel {
-    @apply px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg;
+    @apply px-6 py-4 shadow-md overflow-hidden sm:rounded-lg;
+}
+
+.panel-small {
+    @apply px-2 py-1 bg-white shadow-md overflow-hidden sm:rounded-lg;
 }
 
 /* The switch - the box around the slider */
