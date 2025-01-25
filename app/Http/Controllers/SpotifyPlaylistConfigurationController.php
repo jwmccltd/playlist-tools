@@ -23,16 +23,14 @@ class SpotifyPlaylistConfigurationController extends Controller
     {
         $data = $this->dataService->getData('playlist', 'playlists/' . $playlistId);
 
-        dd($data);
-
         $artists = [];
-        foreach ($data['tracks']['items'] as $items) {
+        foreach ($data['all_tracks'] as $items) {
             foreach($items['track']['artists'] as $artist) {
-                $artists[] = $artist['name'];
+                if (!in_array($artist['name'], $artists)) {
+                    $artists[] = $artist['name'];
+                }
             }
         }
-
-        dd($artists);
 
         return Inertia::render('PlaylistConfiguration', [
             'playlistId'            => $data['id'],
@@ -42,6 +40,7 @@ class SpotifyPlaylistConfigurationController extends Controller
             'playlistFollowers'     => (string) $data['followers']['total'] ?? '0',
             'playlistTrackTotal'    => (string) $data['tracks']['total'] ?? '0',
             'playlistConfigOptions' => $this->playlistConfigurationOption->get(),
+            'playlistArtists'       => $artists, 
         ]);
     }
 }

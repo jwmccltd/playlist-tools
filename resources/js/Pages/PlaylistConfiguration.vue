@@ -129,7 +129,7 @@ watch(component, (value) => {
             </LayoutFull>
             <div v-if="configs.length > 0" class="mt-8">
                 <div v-for="(config, index) of configs" :key="index">
-                    <div class="flex flex-wrap items-center">
+                    <div class="flex flex-wrap items-center justify-center">
                         <div class="panel">
                             <select class="emerald border text-sm rounded-lg block w-full p-2.5" v-model="component">
                                 <option value="0">Select Option</option>

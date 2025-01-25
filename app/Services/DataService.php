@@ -83,14 +83,6 @@ class DataService
                     }
                 }
 
-                dd($returnResults);
-
-                /*$returnData[] = $data;
-                while (isset($data['items'])) {
-                    $data = $this->spotifyService->apiRequest($data['next']);
-                    $data = json_decode($data, true);
-                    $returnData[] = $data;
-                }*/
                 break;    
             default:
                 return $data ?? null;
