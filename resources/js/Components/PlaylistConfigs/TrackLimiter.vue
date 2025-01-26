@@ -3,23 +3,31 @@
 import { faArrowRight, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { ref } from 'vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import Modal from '@/Components/Modal.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
 
-const excludeArtistOption = ref(false);
-const showToggle = ref(false);
+const excludeArtistSelect = ref(false);
+const transferToSelect = ref(false);
+const closeTransferToSelectModal = ref(false);
+
+const closeArtistSelectModal = () => {
+   excludeArtistSelect.value = false;
+};
 
 </script>
 <template>
 
-      <div class="panel">
+      <div class="panel m-2">
          <p>Limit track count to max<span><input class="mx-1.5 w-24" type="number"/>tracks</span></p>
       </div>
 
-      <div class="mx-2">
+      <div class="m-2">
          <div class="panel-small">
             <font-awesome-icon :icon="faArrowRight" size="xl" class="cyan"/>
          </div> 
       </div> 
-      <div class="panel">
+      <div class="panel m-2">
          <div class="flex flex-row items-center">
             <div>
                <p>By removing</p>
@@ -35,22 +43,46 @@ const showToggle = ref(false);
             </div>   
          </div> 
       </div>
-      <div class="mx-2">
-         <div class="panel-small cursor-pointer" @click.prevent="showToggle = !showToggle">
+      <div class="m-2">
+         <div class="panel-small">
             <font-awesome-icon :icon="faPlus" size="xl" class="text-slate-500"/>
          </div>
       </div>
 
-      <div class="panel bg-slate-200">
-         <p>Exclude these artists from removal<span><input class="mx-1.5 w-34"/></span></p>
+      <div class="panel bg-slate-200 m-2">
+         <p>Exclude these artists from removal
+            <span>
+               <PrimaryButton @click.prevent="excludeArtistSelect = true" class="ml-2">Select Artists</PrimaryButton>
+            </span>
+         </p>
       </div>
       <div class="mx-2">
-         <div class="panel-small cursor-pointer">
+         <div class="panel-small">
             <font-awesome-icon :icon="faPlus" size="xl" class="text-slate-500"/>
          </div> 
       </div> 
-      <div class="panel bg-slate-200">
-         <p>Move removed to tracks to<span><input class="mx-1.5 w-24" type="number"/></span></p>
+      <div class="panel bg-slate-200 m-2">
+         <p>Move removed to tracks to
+            <span>
+               <PrimaryButton @click.prevent="transferToSelect = true" class="ml-2">Select Playlists</PrimaryButton>
+            </span>
+         </p>
       </div>
+
+      <Modal :show="excludeArtistSelect" @close="closeArtistSelectModal">
+         <div class="p-6">
+            Hello
+
+            <div class="mt-6 flex justify-end">
+               <SecondaryButton @click="closeArtistSelectModal"> Cancel </SecondaryButton>
+            </div>
+         </div>
+      </Modal>
+
+      <Modal :show="transferToSelect" @close="closeTransferModal">
+         <div class="p-6">
+            Transfer
+         </div>
+      </Modal>
   
 </template>
