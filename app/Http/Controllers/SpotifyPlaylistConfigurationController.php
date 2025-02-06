@@ -19,28 +19,37 @@ class SpotifyPlaylistConfigurationController extends Controller
         // Constructor
     }
 
-    public function index($playlistId)
+    public function index(string $playlistId)
     {
-        $data = $this->dataService->getData('playlist', 'playlists/' . $playlistId);
+        $selectedPlaylistData = $this->dataService->getData('playlist', 'playlists/' . $playlistId);
 
         $artists = [];
-        foreach ($data['all_tracks'] as $items) {
-            foreach($items['track']['artists'] as $artist) {
+        foreach ($selectedPlaylistData['all_tracks'] as $items) {
+            foreach ($items['track']['artists'] as $artist) {
                 if (!in_array($artist['name'], $artists)) {
-                    $artists[] = $artist['name'];
+                    $artists[$artist['id']] = $artist['name'];
                 }
             }
         }
 
+        $playlistsData = $this->dataService->getData('playlists', 'me/playlists');
+        $playlists = [];
+        foreach ($playlistsData as $playlist) {
+            if ($playlist['id'] !== $selectedPlaylistData['id']) {
+                $playlists[$playlist['id']] = $playlist['name'];
+            }
+        }
+
         return Inertia::render('PlaylistConfiguration', [
-            'playlistId'            => $data['id'],
-            'playlistName'          => $data['name'],
-            'playlistDescription'   => $data['description'],
-            'playlistImageUrl'      => $data['images'][0]['url'],
-            'playlistFollowers'     => (string) $data['followers']['total'] ?? '0',
-            'playlistTrackTotal'    => (string) $data['tracks']['total'] ?? '0',
+            'playlistId'            => $selectedPlaylistData['id'],
+            'playlistName'          => $selectedPlaylistData['name'],
+            'playlistDescription'   => $selectedPlaylistData['description'],
+            'playlistImageUrl'      => $selectedPlaylistData['images'][0]['url'],
+            'playlistFollowers'     => (string) $selectedPlaylistData['followers']['total'] ?? '0',
+            'playlistTrackTotal'    => (string) $selectedPlaylistData['tracks']['total'] ?? '0',
             'playlistConfigOptions' => $this->playlistConfigurationOption->get(),
-            'playlistArtists'       => $artists, 
+            'playlistArtists'       => $artists,
+            'playlists'             => $playlists,
         ]);
     }
 }

@@ -17,7 +17,6 @@ const playlists = ref([]);
 const processPlaylists = (data) => {
     playlists.value = data;
 }
-
 </script>
 
 <template>

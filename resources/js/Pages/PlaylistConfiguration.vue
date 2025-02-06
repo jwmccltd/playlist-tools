@@ -2,7 +2,7 @@
 import LayoutBase from '@/Layouts/LayoutBase.vue';
 import LayoutFull from '@/Layouts/LayoutFull.vue';
 import { Head } from '@inertiajs/vue3';
-import { markRaw, ref, watch } from 'vue';
+import { markRaw, ref, watch, provide } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
@@ -33,8 +33,19 @@ const props = defineProps({
     },
     playlistConfigOptions: {
         type: Array
+    },
+    playlistArtists: {
+        type: Array
+    },
+    playlists: {
+        type: Array
     }
 });
+
+const configModel = defineModel();
+
+provide('playlistArtists', props.playlistArtists);
+provide('playlists', props.playlists);
 
 const configComponent = ref(null);
 const setComponent = (selectedComponent) => {
@@ -143,7 +154,11 @@ watch(component, (value) => {
                                 <font-awesome-icon :icon="faArrowRight" size="xl" class="cyan"/>
                             </div>    
                         </div> 
-                        <component :is="configComponent" v-if="configComponent !== null"/>     
+                        <component 
+                            :is="configComponent"
+                            v-if="configComponent !== null"
+                            v-model="configModel"
+                        />     
                     </div>
                 </div>
             </div>

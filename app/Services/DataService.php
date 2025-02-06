@@ -33,9 +33,9 @@ class DataService
     {
         $cacheData = $this->cacheService->loadCacheItem($identifier);
 
-        /*if ($cacheData !== null) {
-            return json_decode($cacheData);
-        }*/
+        if ($cacheData !== null) {
+            return json_decode($cacheData, true);
+        }
 
         $data = $this->spotifyService->apiRequest(env('SPOTIFY_API_URL') . str_replace(',', '/', $url));
 
@@ -61,7 +61,7 @@ class DataService
                         }
                     }
                 }
-                
+
                 break;
             case 'playlist':
 
@@ -83,7 +83,7 @@ class DataService
                     }
                 }
 
-                break;    
+                break;
             default:
                 return $data ?? null;
         }
