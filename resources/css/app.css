@@ -161,11 +161,12 @@ svg.cyan {
 }
   
 input:checked + .slider {
-    background-color: rgb(22 78 99);
+    @apply bg-emerald-900;
 }
   
 input:focus + .slider {
-    box-shadow: 0 0 1px rgb(22 78 99);
+    @apply shadow-emerald-900;
+    box-shadow: 0 0 1px;
 }
   
 input:checked + .slider:before {

@@ -6,6 +6,7 @@ import { ref } from 'vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import Modal from '@/Components/Modal.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
+import ToggleSwitch from '@/Components/ToggleSwitch.vue';
 import { inject } from 'vue'
 
 const playlistArtists = inject('playlistArtists');
@@ -82,14 +83,17 @@ const configModel = defineModel();
             <div>
                <div class="text-2xl mb-4">Filter Playlist Artists</div>
             </div>
-            <div><input type="checkbox"/> Select All</div>
+            <div>
+               <ToggleSwitch :control="'artist-select'"></ToggleSwitch>
+            </div>
          </div>
          <div v-for="(artist, index) of playlistArtists" :key="index">
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-2 gap-4 mt-1 items-center">
                <div>{{ artist }}</div>
-               <div><input type="checkbox"/></div>
+               <div>
+                  <ToggleSwitch :ident="'artist-select'"></ToggleSwitch>
+               </div>
             </div>
-       
          </div>
          <div class="mt-6 flex justify-end">
             <SecondaryButton @click="closeArtistSelectModal"> Cancel </SecondaryButton>
@@ -103,12 +107,14 @@ const configModel = defineModel();
             <div>
                <div class="text-2xl mb-4">Filter Playlists</div>
             </div>
-            <div><input type="checkbox"/> Select All</div>
+            <div>
+               <ToggleSwitch :control="'playlist-select'"></ToggleSwitch>
+            </div>
          </div>
          <div v-for="(playlist, index) of playlists" :key="index">
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-2 gap-4 mt-1 items-center">
                <div>{{ playlist }}</div>
-               <div><input type="checkbox"/></div>
+               <ToggleSwitch :ident="'playlist-select'"></ToggleSwitch>
             </div>
        
          </div>
