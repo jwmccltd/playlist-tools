@@ -13,7 +13,7 @@ const props = defineProps({
     },
 });
 
-const elementChecked = ref(false);
+const elementChecked = defineModel();
 
 const targetElements = (control) => {
     selectAllToggle.ident = control;
@@ -39,7 +39,7 @@ const shouldCheck = () => {
 <template>
     <div v-if="control !== ''">
         <label class="switch">
-            <input type="checkbox" v-model="elementChecked" @click="targetElements(control)"/>
+            <input type="checkbox" v-model="elementChecked" @click="targetElements(control)" />
             <span class="slider round"></span>
         </label>
     </div>

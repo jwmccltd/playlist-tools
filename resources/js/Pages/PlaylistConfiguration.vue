@@ -35,17 +35,17 @@ const props = defineProps({
         type: Array
     },
     playlistArtists: {
-        type: Array
+        type: Object
     },
     playlists: {
-        type: Array
+        type: Object
     },
     playlistTracks: {
-        type: Array
+        type: Object
     }
 });
 
-const configModel = defineModel();
+const configModel = ref({});
 
 provide('playlistArtists', props.playlistArtists);
 provide('playlists', props.playlists);
@@ -57,10 +57,6 @@ const setComponent = (selectedComponent) => {
         TrackLimiter
     }
     configComponent.value = markRaw(lookup[selectedComponent]);
-    
-    console.log(configComponent.value);
-    
-    configModel.mainOption = configComponent.value.name;
 }
 
 const stringChars = (stringObject) => {
@@ -80,8 +76,14 @@ const addNewConfig = () => {
 const component = ref(0);
 
 watch(component, (value) => {
-    setComponent(value);
+    setComponent(value.component);
+        
+    configModel.value.configOptionId = value.id;
 });
+
+watch(configModel, (modelValue) => {
+    console.log(modelValue);
+}, {deep: true});
 
 </script>
 
@@ -152,7 +154,7 @@ watch(component, (value) => {
                         <div class="panel">
                             <select class="emerald border text-sm rounded-lg block w-full p-2.5" v-model="component">
                                 <option value="0">Select Option</option>
-                                <option v-for="config of playlistConfigOptions" :key="config.id" :value="config.component">
+                                <option v-for="config of playlistConfigOptions" :key="config.id" :value="{ id: config.id, component: config.component }">
                                     {{ config.name }}
                                 </option>
                             </select>    

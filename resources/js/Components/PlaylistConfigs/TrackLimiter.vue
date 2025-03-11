@@ -30,6 +30,11 @@ const closeTransferModal = () => {
 };
 
 const configModel = defineModel();
+configModel.value.byRemovingOption = 'default-end';
+configModel.value.selectedArtists = [];
+configModel.value.selectedTracks = [];
+configModel.value.selectedPlaylists = [];
+
 </script>
 <template>
    <div class="panel m-2">
@@ -47,7 +52,7 @@ const configModel = defineModel();
             <p>By removing</p>
          </div>
          <div class="mx-1.5">
-            <select class="emerald border text-sm rounded-lg block w-full p-2.5">
+            <select class="emerald border text-sm rounded-lg block w-full p-2.5" v-model="configModel.byRemovingOption">
                <option value="default-end">From the end of default order</option>
                <option value="default-start">From the start of default order</option>
                <option value="oldest">Oldest tracks first</option>
@@ -111,7 +116,7 @@ const configModel = defineModel();
             <div class="grid grid-cols-2 gap-4 mt-1 items-center">
                <div>{{ artist }}</div>
                <div>
-                  <ToggleSwitch :ident="'artist-select'"></ToggleSwitch>
+                  <ToggleSwitch :ident="'artist-select'" v-model="configModel.selectedPlaylists"></ToggleSwitch>
                </div>
             </div>
          </div>
@@ -154,7 +159,7 @@ const configModel = defineModel();
                <div class="text-2xl mb-4">Filter Playlists</div>
             </div>
             <div>
-               <ToggleSwitch :control="'playlist-select'"></ToggleSwitch>
+               <ToggleSwitch :control="'playlist-select'" v-model=""></ToggleSwitch>
             </div>
          </div>
          <div v-for="(playlist, index) of playlists" :key="index">
