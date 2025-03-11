@@ -39,6 +39,9 @@ const props = defineProps({
     },
     playlists: {
         type: Array
+    },
+    playlistTracks: {
+        type: Array
     }
 });
 
@@ -46,13 +49,18 @@ const configModel = defineModel();
 
 provide('playlistArtists', props.playlistArtists);
 provide('playlists', props.playlists);
+provide('playlistTracks', props.playlistTracks);
 
 const configComponent = ref(null);
 const setComponent = (selectedComponent) => {
     const lookup = {
         TrackLimiter
     }
-    configComponent.value = markRaw(lookup[selectedComponent])
+    configComponent.value = markRaw(lookup[selectedComponent]);
+    
+    console.log(configComponent.value);
+    
+    configModel.mainOption = configComponent.value.name;
 }
 
 const stringChars = (stringObject) => {

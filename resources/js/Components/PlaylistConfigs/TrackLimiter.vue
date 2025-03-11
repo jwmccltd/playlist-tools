@@ -11,13 +11,19 @@ import { inject } from 'vue'
 
 const playlistArtists = inject('playlistArtists');
 const playlists       = inject('playlists');
+const playlistTracks  = inject('playlistTracks');
 
 const excludeArtistSelect = ref(false);
+const excludeTrackSelect = ref(false);
 const transferToSelect = ref(false);
 
 const closeArtistSelectModal = () => {
    excludeArtistSelect.value = false;
 };
+
+const closeTrackSelect = () => {
+   excludeTrackSelect.value = false;
+}
 
 const closeTransferModal = () => {
    transferToSelect.value = false;
@@ -68,7 +74,21 @@ const configModel = defineModel();
       <div class="panel-small">
          <font-awesome-icon :icon="faPlus" size="xl" class="text-slate-500"/>
       </div> 
-   </div> 
+   </div>
+
+   <div class="panel bg-slate-200 m-2">
+      <p>Exclude these tracks from removal
+         <span>
+            <PrimaryButton @click.prevent="excludeTrackSelect = true" class="ml-2">Select Tracks</PrimaryButton>
+         </span>
+      </p>
+   </div>
+   <div class="mx-2">
+      <div class="panel-small">
+         <font-awesome-icon :icon="faPlus" size="xl" class="text-slate-500"/>
+      </div> 
+   </div>
+
    <div class="panel bg-slate-200 m-2">
       <p>Move removed to tracks to
          <span>
@@ -97,6 +117,32 @@ const configModel = defineModel();
          </div>
          <div class="mt-6 flex justify-end">
             <SecondaryButton @click="closeArtistSelectModal"> Cancel </SecondaryButton>
+         </div>
+      </div>
+   </Modal>
+
+   <Modal :show="excludeTrackSelect" @close="closeTrackSelect">
+      <div class="p-6">
+         <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+               <div class="text-2xl mb-4">Filter Tracks</div>
+            </div>
+            <div>
+               <ToggleSwitch :control="'track-select'"></ToggleSwitch>
+            </div>
+         </div>
+         <div v-for="(track, index) of playlistTracks" :key="index">
+            <div class="grid grid-cols-2 gap-4 mt-1 items-start">
+               <div>
+                  <strong>{{ track.name }}</strong><br />
+                  <small><i>{{ track.artists }}</i></small>
+               </div>
+               <ToggleSwitch :ident="'track-select'"></ToggleSwitch>
+            </div>
+       
+         </div>
+         <div class="mt-6 flex justify-end">
+            <SecondaryButton @click="closeTransferModal"> Cancel </SecondaryButton>
          </div>
       </div>
    </Modal>

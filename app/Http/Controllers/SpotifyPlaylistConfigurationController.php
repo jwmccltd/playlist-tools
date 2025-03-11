@@ -24,12 +24,21 @@ class SpotifyPlaylistConfigurationController extends Controller
         $selectedPlaylistData = $this->dataService->getData('playlist', 'playlists/' . $playlistId);
 
         $artists = [];
+        $tracks = [];
         foreach ($selectedPlaylistData['all_tracks'] as $items) {
+            $tracks[$items['track']['id']] = [];
+            $tracks[$items['track']['id']]['name'] = $items['track']['name'];
+            $tracks[$items['track']['id']]['artists'] = '';
+
+            $trackArtists = [];
             foreach ($items['track']['artists'] as $artist) {
+                $trackArtists[] = $artist['name'];
                 if (!in_array($artist['name'], $artists)) {
                     $artists[$artist['id']] = $artist['name'];
                 }
             }
+
+            $tracks[$items['track']['id']]['artists'] = implode(', ', $trackArtists);
         }
 
         $playlistsData = $this->dataService->getData('playlists', 'me/playlists');
@@ -50,6 +59,7 @@ class SpotifyPlaylistConfigurationController extends Controller
             'playlistConfigOptions' => $this->playlistConfigurationOption->get(),
             'playlistArtists'       => $artists,
             'playlists'             => $playlists,
+            'playlistTracks'        => $tracks,
         ]);
     }
 }
