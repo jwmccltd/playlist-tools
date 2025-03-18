@@ -9,11 +9,17 @@ const props = defineProps({
     },
     ident: {
         type: String,
-        default: ''
+        default: '',
     },
+    id: {
+        type: String,
+        required: false,
+    }
 });
 
 const elementChecked = defineModel();
+
+const checkAll = ref(false);
 
 const targetElements = (control) => {
     selectAllToggle.ident = control;
@@ -23,7 +29,9 @@ const targetElements = (control) => {
 
 watch(selectAllToggle, (newState) => {
   if (newState.ident === props.ident) {
-    elementChecked.value = newState.state;
+    //elementChecked.value = newState.state;
+    //console.log('hello');
+    //console.log(elementChecked.value);
   }  
 });
 
@@ -39,13 +47,13 @@ const shouldCheck = () => {
 <template>
     <div v-if="control !== ''">
         <label class="switch">
-            <input type="checkbox" v-model="elementChecked" @click="targetElements(control)" />
+            <input type="checkbox" @click="targetElements(control)" />
             <span class="slider round"></span>
         </label>
     </div>
     <div v-else>
         <label class="switch">
-            <input type="checkbox" v-model="elementChecked" />
+            <input type="checkbox" name="checked[]" v-model="elementChecked" :value="id"/>
             <span class="slider round"></span>
         </label>
     </div>

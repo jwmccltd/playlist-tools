@@ -35,6 +35,8 @@ configModel.value.selectedArtists = [];
 configModel.value.selectedTracks = [];
 configModel.value.selectedPlaylists = [];
 
+console.log(configModel.value);
+
 </script>
 <template>
    <div class="panel m-2">
@@ -116,7 +118,11 @@ configModel.value.selectedPlaylists = [];
             <div class="grid grid-cols-2 gap-4 mt-1 items-center">
                <div>{{ artist }}</div>
                <div>
-                  <ToggleSwitch :ident="'artist-select'" v-model="configModel.selectedPlaylists"></ToggleSwitch>
+                  <ToggleSwitch 
+                     :ident="'artist-select'"
+                     v-model="configModel.selectedArtists" 
+                     :id="index">
+                  </ToggleSwitch>
                </div>
             </div>
          </div>
@@ -142,7 +148,7 @@ configModel.value.selectedPlaylists = [];
                   <strong>{{ track.name }}</strong><br />
                   <small><i>{{ track.artists }}</i></small>
                </div>
-               <ToggleSwitch :ident="'track-select'"></ToggleSwitch>
+               <ToggleSwitch :ident="'track-select'" v-model="configModel.selectedTracks"></ToggleSwitch>
             </div>
        
          </div>
@@ -159,7 +165,7 @@ configModel.value.selectedPlaylists = [];
                <div class="text-2xl mb-4">Filter Playlists</div>
             </div>
             <div>
-               <ToggleSwitch :control="'playlist-select'" v-model=""></ToggleSwitch>
+               <ToggleSwitch :control="'playlist-select'" v-model="configModel.selectedPlaylists"></ToggleSwitch>
             </div>
          </div>
          <div v-for="(playlist, index) of playlists" :key="index">
