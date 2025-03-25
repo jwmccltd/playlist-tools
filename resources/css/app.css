@@ -183,3 +183,11 @@ input:checked + .slider:before {
 .slider.round:before {
     border-radius: 50%;
 }
+
+.modal-scroll-height {
+    max-height: 70vh;
+}
+
+.toggle-indent {
+    margin-left: 7.5px;
+}

@@ -14,46 +14,68 @@ const props = defineProps({
     id: {
         type: String,
         required: false,
+    },
+    value: {
+        type: String,
+        required: false,
     }
 });
 
-const elementChecked = defineModel();
+const selectedElements = defineModel();
 
 const checkAll = ref(false);
 
-const targetElements = (control) => {
+const targetElements = (event, control) => {
+    selectAllToggle.state = event.target.checked;
     selectAllToggle.ident = control;
-    // Click handler is fired before element state is updated.
-    selectAllToggle.state = !elementChecked.value;
+};
+
+const addRemoveElement = (value, isRemoving) => {
+    const remove = isRemoving || false;
+
+    if (remove === false) {
+        selectedElements.value.push(value);
+        selectedElements.value = [...new Set(selectedElements.value)];
+    } else {
+        const index = selectedElements.value.indexOf(value);
+        if (index > -1) {
+            selectedElements.value.splice(index, 1);
+        }
+    }
+}
+
+const checkElement = (event) => {
+    if (event.target.checked === true) {
+        addRemoveElement(props.value);
+    } else {
+        addRemoveElement(props.value, true);
+    }
 };
 
 watch(selectAllToggle, (newState) => {
   if (newState.ident === props.ident) {
-    //elementChecked.value = newState.state;
-    //console.log('hello');
-    //console.log(elementChecked.value);
+    if (selectAllToggle.state === true) {
+        checkAll.value = true;
+        addRemoveElement(props.value);
+    } else {
+        checkAll.value = false;
+        selectedElements.value = [];
+    }
   }  
 });
-
-const shouldCheck = () => {
-    if (ident === selectAllToggle.ident && selectAllToggle.state === true) {
-        return true;
-    }
-    return false;
-}
 
 </script>
 
 <template>
     <div v-if="control !== ''">
         <label class="switch">
-            <input type="checkbox" @click="targetElements(control)" />
+            <input type="checkbox" @change="targetElements($event, control)" />
             <span class="slider round"></span>
         </label>
     </div>
     <div v-else>
         <label class="switch">
-            <input type="checkbox" name="checked[]" v-model="elementChecked" :value="id"/>
+            <input type="checkbox" :value="id" :checked="checkAll" @change="checkElement($event)"/>
             <span class="slider round"></span>
         </label>
     </div>

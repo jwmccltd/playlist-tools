@@ -1,13 +1,14 @@
 <script setup>
 
-import { faArrowRight, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRight, faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { ref } from 'vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import Modal from '@/Components/Modal.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import ToggleSwitch from '@/Components/ToggleSwitch.vue';
-import { inject } from 'vue'
+import { inject } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 
 const playlistArtists = inject('playlistArtists');
 const playlists       = inject('playlists');
@@ -21,21 +22,23 @@ const closeArtistSelectModal = () => {
    excludeArtistSelect.value = false;
 };
 
-const closeTrackSelect = () => {
+const closeTrackSelectModal = () => {
    excludeTrackSelect.value = false;
 }
 
-const closeTransferModal = () => {
+const closeTransferPlaylistModal = () => {
    transferToSelect.value = false;
 };
 
-const configModel = defineModel();
-configModel.value.byRemovingOption = 'default-end';
-configModel.value.selectedArtists = [];
-configModel.value.selectedTracks = [];
-configModel.value.selectedPlaylists = [];
+const resetSelectedArtists = () => {
+   configModel.value.selectedArtists = [];
+};
 
-console.log(configModel.value);
+const page = usePage();
+
+const configModel = defineModel();
+
+configModel.value = page.props.playlistConfigs.TrackLimiter;
 
 </script>
 <template>
@@ -106,6 +109,9 @@ console.log(configModel.value);
 
    <Modal :show="excludeArtistSelect" @close="closeArtistSelectModal">
       <div class="p-6">
+         <div class="flex justify-end" @click="closeArtistSelectModal">
+            <font-awesome-icon :icon="faTimes" size="xl" class="text-slate-500 cursor-pointer"/>
+         </div>
          <div class="grid grid-cols-2 gap-4 mb-4">
             <div>
                <div class="text-2xl mb-4">Filter Playlist Artists</div>
@@ -114,26 +120,33 @@ console.log(configModel.value);
                <ToggleSwitch :control="'artist-select'"></ToggleSwitch>
             </div>
          </div>
-         <div v-for="(artist, index) of playlistArtists" :key="index">
-            <div class="grid grid-cols-2 gap-4 mt-1 items-center">
-               <div>{{ artist }}</div>
-               <div>
-                  <ToggleSwitch 
-                     :ident="'artist-select'"
-                     v-model="configModel.selectedArtists" 
-                     :id="index">
-                  </ToggleSwitch>
+         <div class="modal-scroll-height h-full overflow-y-auto">
+            <div v-for="(artist, index) of playlistArtists" :key="index">
+               <div class="grid grid-cols-2 gap-4 mt-1 items-center">
+                  <div>{{ artist }}</div>
+                  <div class="toggle-indent">
+                     <ToggleSwitch 
+                        :ident="'artist-select'"
+                        v-model="configModel.selectedArtists"
+                        :value="index"
+                        :id="index">
+                     </ToggleSwitch>
+                  </div>
                </div>
             </div>
-         </div>
-         <div class="mt-6 flex justify-end">
-            <SecondaryButton @click="closeArtistSelectModal"> Cancel </SecondaryButton>
+         </div>   
+         <div class="mt-6 flex justify-between">
+            <PrimaryButton @click.prevent="resetSelectedArtists">Reset</PrimaryButton>
+            <SecondaryButton @click="closeArtistSelectModal">Ok</SecondaryButton>
          </div>
       </div>
    </Modal>
 
-   <Modal :show="excludeTrackSelect" @close="closeTrackSelect">
+   <Modal :show="excludeTrackSelect" @close="closeTrackSelectModal">
       <div class="p-6">
+         <div class="flex justify-end" @click="closeTrackSelectModal">
+            <font-awesome-icon :icon="faTimes" size="xl" class="text-slate-500 cursor-pointer"/>
+         </div>
          <div class="grid grid-cols-2 gap-4 mb-4">
             <div>
                <div class="text-2xl mb-4">Filter Tracks</div>
@@ -148,35 +161,49 @@ console.log(configModel.value);
                   <strong>{{ track.name }}</strong><br />
                   <small><i>{{ track.artists }}</i></small>
                </div>
-               <ToggleSwitch :ident="'track-select'" v-model="configModel.selectedTracks"></ToggleSwitch>
+               <div>
+                  <ToggleSwitch 
+                     :ident="'track-select'"
+                     v-model="configModel.selectedTracks"
+                     :value="index"
+                     :id="index">
+                  </ToggleSwitch>
+               </div>
             </div>
        
          </div>
          <div class="mt-6 flex justify-end">
-            <SecondaryButton @click="closeTransferModal"> Cancel </SecondaryButton>
+            <SecondaryButton @click="closeTrackSelectModal">Ok</SecondaryButton>
          </div>
       </div>
    </Modal>
 
-   <Modal :show="transferToSelect" @close="closeTransferModal">
+   <Modal :show="transferToSelect" @close="closeTransferPlaylistModal">
       <div class="p-6">
+         <div class="flex justify-end" @click="closeTransferPlaylistModal">
+            <font-awesome-icon :icon="faTimes" size="xl" class="text-slate-500 cursor-pointer"/>
+         </div>
          <div class="grid grid-cols-2 gap-4 mb-4">
             <div>
                <div class="text-2xl mb-4">Filter Playlists</div>
             </div>
             <div>
-               <ToggleSwitch :control="'playlist-select'" v-model="configModel.selectedPlaylists"></ToggleSwitch>
+               <ToggleSwitch :control="'playlist-select'"></ToggleSwitch>
             </div>
          </div>
          <div v-for="(playlist, index) of playlists" :key="index">
             <div class="grid grid-cols-2 gap-4 mt-1 items-center">
                <div>{{ playlist }}</div>
-               <ToggleSwitch :ident="'playlist-select'"></ToggleSwitch>
+               <ToggleSwitch 
+                  :ident="'playlist-select'" 
+                  v-model="configModel.selectedPlaylists"
+                  :value="index"
+                  :id="index">
+               </ToggleSwitch>
             </div>
-       
          </div>
          <div class="mt-6 flex justify-end">
-            <SecondaryButton @click="closeTransferModal"> Cancel </SecondaryButton>
+            <SecondaryButton @click="closeTransferPlaylistModal">Ok</SecondaryButton>
          </div>
       </div>
    </Modal>
