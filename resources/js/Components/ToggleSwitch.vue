@@ -52,6 +52,20 @@ const checkElement = (event) => {
     }
 };
 
+const shouldCheck = (id) => {
+    if (checkAll.value === true) {
+        return true;
+    }
+
+    for (let elementId of selectedElements.value) {
+        if (elementId === id) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 watch(selectAllToggle, (newState) => {
   if (newState.ident === props.ident) {
     if (selectAllToggle.state === true) {
@@ -75,7 +89,7 @@ watch(selectAllToggle, (newState) => {
     </div>
     <div v-else>
         <label class="switch">
-            <input type="checkbox" :value="id" :checked="checkAll" @change="checkElement($event)"/>
+            <input type="checkbox" :value="id" :checked="shouldCheck(id)" @change="checkElement($event)"/>
             <span class="slider round"></span>
         </label>
     </div>
