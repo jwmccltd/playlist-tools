@@ -112,9 +112,9 @@ configModel.value = page.props.playlistConfigs.TrackLimiter;
          <div class="flex justify-end" @click="closeArtistSelectModal">
             <font-awesome-icon :icon="faTimes" size="xl" class="text-slate-500 cursor-pointer"/>
          </div>
-         <div class="grid grid-cols-2 gap-4 mb-4">
+         <div class="flex flex-row">
             <div>
-               <div class="text-2xl mb-4">Filter Playlist Artists</div>
+               <div class="text-2xl mb-4 modal-label-field">Filter Playlist Artists</div>
             </div>
             <div>
                <ToggleSwitch :control="'artist-select'"></ToggleSwitch>
@@ -122,8 +122,8 @@ configModel.value = page.props.playlistConfigs.TrackLimiter;
          </div>
          <div class="modal-scroll-height h-full overflow-y-auto">
             <div v-for="(artist, index) of playlistArtists" :key="index">
-               <div class="grid grid-cols-2 gap-4 mt-1 items-center">
-                  <div>{{ artist }}</div>
+               <div class="flex flex-row items-center mb-2">
+                  <div class="modal-label-field">{{ artist }}</div>
                   <div>
                      <ToggleSwitch 
                         :ident="'artist-select'"
@@ -147,9 +147,9 @@ configModel.value = page.props.playlistConfigs.TrackLimiter;
          <div class="flex justify-end" @click="closeTrackSelectModal">
             <font-awesome-icon :icon="faTimes" size="xl" class="text-slate-500 cursor-pointer"/>
          </div>
-         <div class="grid grid-cols-2 gap-4 mb-4">
+         <div class="flex flex-row items-center">
             <div>
-               <div class="text-2xl mb-4">Filter Tracks</div>
+               <div class="text-2xl mb-4 modal-label-field">Filter Tracks</div>
             </div>
             <div>
                <ToggleSwitch :control="'track-select'"></ToggleSwitch>
@@ -157,8 +157,8 @@ configModel.value = page.props.playlistConfigs.TrackLimiter;
          </div>
          <div class="modal-scroll-height h-full overflow-y-auto">
             <div v-for="(track, index) of playlistTracks" :key="index">
-               <div class="grid grid-cols-2 gap-4 mt-1 items-start">
-                  <div>
+               <div class="flex flex-row">
+                  <div class="modal-label-field mb-4">
                      <strong>{{ track.name }}</strong><br />
                      <small><i>{{ track.artists }}</i></small>
                   </div>
@@ -184,9 +184,9 @@ configModel.value = page.props.playlistConfigs.TrackLimiter;
          <div class="flex justify-end" @click="closeTransferPlaylistModal">
             <font-awesome-icon :icon="faTimes" size="xl" class="text-slate-500 cursor-pointer"/>
          </div>
-         <div class="grid grid-cols-2 gap-4 mb-4">
+         <div class="flex flex-row">
             <div>
-               <div class="text-2xl mb-4">Filter Playlists</div>
+               <div class="text-2xl mb-4 modal-label-field">Filter Playlists</div>
             </div>
             <div>
                <ToggleSwitch :control="'playlist-select'"></ToggleSwitch>
@@ -194,8 +194,8 @@ configModel.value = page.props.playlistConfigs.TrackLimiter;
          </div>
          <div class="modal-scroll-height h-full overflow-y-auto">
             <div v-for="(playlist, index) of playlists" :key="index">
-               <div class="grid grid-cols-2 gap-4 mt-1 items-center">
-                  <div>{{ playlist }}</div>
+               <div class="flex flex-row">
+                  <div class="modal-label-field mb-4">{{ playlist }}</div>
                   <div>
                      <ToggleSwitch 
                         :ident="'playlist-select'" 

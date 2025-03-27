@@ -187,3 +187,7 @@ input:checked + .slider:before {
 .modal-scroll-height {
     max-height: 70vh;
 }
+
+.modal-label-field {
+   width: 500px; 
+}
