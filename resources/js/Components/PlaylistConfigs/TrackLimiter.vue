@@ -124,7 +124,7 @@ configModel.value = page.props.playlistConfigs.TrackLimiter;
             <div v-for="(artist, index) of playlistArtists" :key="index">
                <div class="grid grid-cols-2 gap-4 mt-1 items-center">
                   <div>{{ artist }}</div>
-                  <div class="toggle-indent">
+                  <div>
                      <ToggleSwitch 
                         :ident="'artist-select'"
                         v-model="configModel.selectedArtists"
@@ -155,22 +155,23 @@ configModel.value = page.props.playlistConfigs.TrackLimiter;
                <ToggleSwitch :control="'track-select'"></ToggleSwitch>
             </div>
          </div>
-         <div v-for="(track, index) of playlistTracks" :key="index">
-            <div class="grid grid-cols-2 gap-4 mt-1 items-start">
-               <div>
-                  <strong>{{ track.name }}</strong><br />
-                  <small><i>{{ track.artists }}</i></small>
-               </div>
-               <div>
-                  <ToggleSwitch 
-                     :ident="'track-select'"
-                     v-model="configModel.selectedTracks"
-                     :value="index"
-                     :id="index">
-                  </ToggleSwitch>
+         <div class="modal-scroll-height h-full overflow-y-auto">
+            <div v-for="(track, index) of playlistTracks" :key="index">
+               <div class="grid grid-cols-2 gap-4 mt-1 items-start">
+                  <div>
+                     <strong>{{ track.name }}</strong><br />
+                     <small><i>{{ track.artists }}</i></small>
+                  </div>
+                  <div>
+                     <ToggleSwitch 
+                        :ident="'track-select'"
+                        v-model="configModel.selectedTracks"
+                        :value="index"
+                        :id="index">
+                     </ToggleSwitch>
+                  </div>
                </div>
             </div>
-       
          </div>
          <div class="mt-6 flex justify-end">
             <SecondaryButton @click="closeTrackSelectModal">Ok</SecondaryButton>
@@ -191,15 +192,19 @@ configModel.value = page.props.playlistConfigs.TrackLimiter;
                <ToggleSwitch :control="'playlist-select'"></ToggleSwitch>
             </div>
          </div>
-         <div v-for="(playlist, index) of playlists" :key="index">
-            <div class="grid grid-cols-2 gap-4 mt-1 items-center">
-               <div>{{ playlist }}</div>
-               <ToggleSwitch 
-                  :ident="'playlist-select'" 
-                  v-model="configModel.selectedPlaylists"
-                  :value="index"
-                  :id="index">
-               </ToggleSwitch>
+         <div class="modal-scroll-height h-full overflow-y-auto">
+            <div v-for="(playlist, index) of playlists" :key="index">
+               <div class="grid grid-cols-2 gap-4 mt-1 items-center">
+                  <div>{{ playlist }}</div>
+                  <div>
+                     <ToggleSwitch 
+                        :ident="'playlist-select'" 
+                        v-model="configModel.selectedPlaylists"
+                        :value="index"
+                        :id="index">
+                     </ToggleSwitch>
+                  </div>
+               </div>
             </div>
          </div>
          <div class="mt-6 flex justify-end">

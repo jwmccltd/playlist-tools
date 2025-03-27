@@ -187,7 +187,3 @@ input:checked + .slider:before {
 .modal-scroll-height {
     max-height: 70vh;
 }
-
-.toggle-indent {
-    margin-left: 7.5px;
-}
