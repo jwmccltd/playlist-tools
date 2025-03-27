@@ -4,6 +4,7 @@ import { faArrowRight, faPlus, faTimes } from '@fortawesome/free-solid-svg-icons
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { ref } from 'vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import ModalSelect from '@/Components/FieldComponents/ModalSelect.vue';
 import Modal from '@/Components/Modal.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import ToggleSwitch from '@/Components/ToggleSwitch.vue';
@@ -73,7 +74,14 @@ configModel.value = page.props.playlistConfigs.TrackLimiter;
       </div>
    </div>
 
-   <div class="panel bg-slate-200 m-2">
+   <ModalSelect 
+      v-model="configModel.selectedArtists"
+      :title="'Exclude these artists from removal'"
+      :button-label="'Select Artists'"
+      :data="playlistArtists"
+   />
+
+   <!--<div class="panel bg-slate-200 m-2">
       <p>Exclude these artists from removal
          <span>
             <PrimaryButton @click.prevent="excludeArtistSelect = true" class="ml-2">Select Artists</PrimaryButton>
@@ -84,7 +92,7 @@ configModel.value = page.props.playlistConfigs.TrackLimiter;
       <div class="panel-small">
          <font-awesome-icon :icon="faPlus" size="xl" class="text-slate-500"/>
       </div> 
-   </div>
+   </div>-->
 
    <div class="panel bg-slate-200 m-2">
       <p>Exclude these tracks from removal
@@ -107,7 +115,7 @@ configModel.value = page.props.playlistConfigs.TrackLimiter;
       </p>
    </div>
 
-   <Modal :show="excludeArtistSelect" @close="closeArtistSelectModal">
+   <!--<Modal :show="excludeArtistSelect" @close="closeArtistSelectModal">
       <div class="p-6">
          <div class="flex justify-end" @click="closeArtistSelectModal">
             <font-awesome-icon :icon="faTimes" size="xl" class="text-slate-500 cursor-pointer"/>
@@ -140,7 +148,7 @@ configModel.value = page.props.playlistConfigs.TrackLimiter;
             <SecondaryButton @click="closeArtistSelectModal">Ok</SecondaryButton>
          </div>
       </div>
-   </Modal>
+   </Modal>-->
 
    <Modal :show="excludeTrackSelect" @close="closeTrackSelectModal">
       <div class="p-6">
