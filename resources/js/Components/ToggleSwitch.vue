@@ -34,12 +34,12 @@ const addRemoveElement = (value, isRemoving) => {
     const remove = isRemoving || false;
 
     if (remove === false) {
-        selectedElements.value.push(value);
-        selectedElements.value = [...new Set(selectedElements.value)];
+        selectedElements.push(value);
+        selectedElements = [...new Set(selectedElements)];
     } else {
-        const index = selectedElements.value.indexOf(value);
+        const index = selectedElements.indexOf(value);
         if (index > -1) {
-            selectedElements.value.splice(index, 1);
+            selectedElements.splice(index, 1);
         }
     }
 }
@@ -57,7 +57,7 @@ const shouldCheck = (id) => {
         return true;
     }
 
-    for (let elementId of selectedElements.value) {
+    for (let elementId of selectedElements) {
         if (elementId === id) {
             return true;
         }
@@ -73,7 +73,7 @@ watch(selectAllToggle, (newState) => {
         addRemoveElement(props.value);
     } else {
         checkAll.value = false;
-        selectedElements.value = [];
+        selectedElements = [];
     }
   }  
 });

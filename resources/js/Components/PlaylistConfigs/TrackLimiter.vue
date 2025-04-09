@@ -31,14 +31,9 @@ const closeTransferPlaylistModal = () => {
    transferToSelect.value = false;
 };
 
-const resetSelectedArtists = () => {
-   configModel.value.selectedArtists = [];
-};
-
 const page = usePage();
 
 const configModel = defineModel();
-
 configModel.value = page.props.playlistConfigs.TrackLimiter;
 
 </script>
@@ -78,8 +73,15 @@ configModel.value = page.props.playlistConfigs.TrackLimiter;
       v-model="configModel.selectedArtists"
       :title="'Exclude these artists from removal'"
       :button-label="'Select Artists'"
+      :modal-title="'Filter Playlist Artists'"
       :data="playlistArtists"
    />
+
+   <div class="mx-2">
+      <div class="panel-small">
+         <font-awesome-icon :icon="faPlus" size="xl" class="text-slate-500"/>
+      </div> 
+   </div>
 
    <!--<div class="panel bg-slate-200 m-2">
       <p>Exclude these artists from removal
