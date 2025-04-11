@@ -18,64 +18,31 @@ const props = defineProps({
     value: {
         type: String,
         required: false,
+    },
+    data: {
+        type: Object,
     }
 });
 
 const selectedElements = defineModel();
 
-const checkAll = ref(false);
+const checked = ref(false);
 
 const targetElements = (event, control) => {
     selectAllToggle.state = event.target.checked;
     selectAllToggle.ident = control;
 };
 
-const addRemoveElement = (value, isRemoving) => {
-    const remove = isRemoving || false;
-
-    if (remove === false) {
-        selectedElements.push(value);
-        selectedElements = [...new Set(selectedElements)];
-    } else {
-        const index = selectedElements.indexOf(value);
-        if (index > -1) {
-            selectedElements.splice(index, 1);
-        }
-    }
-}
-
-const checkElement = (event) => {
-    if (event.target.checked === true) {
-        addRemoveElement(props.value);
-    } else {
-        addRemoveElement(props.value, true);
-    }
-};
-
-const shouldCheck = (id) => {
-    if (checkAll.value === true) {
-        return true;
-    }
-
-    for (let elementId of selectedElements) {
-        if (elementId === id) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 watch(selectAllToggle, (newState) => {
   if (newState.ident === props.ident) {
     if (selectAllToggle.state === true) {
-        checkAll.value = true;
-        addRemoveElement(props.value);
+        checked.value = true;
     } else {
-        checkAll.value = false;
-        selectedElements = [];
+        checked.value = false;
     }
   }  
+
+  console.log(selectedElements.value);
 });
 
 </script>
@@ -89,7 +56,7 @@ watch(selectAllToggle, (newState) => {
     </div>
     <div v-else>
         <label class="switch">
-            <input type="checkbox" :value="id" :checked="shouldCheck(id)" @change="checkElement($event)"/>
+            <input type="checkbox" :value="value" :checked="checked" @click="checked = !checked" v-model="selectedElements" />
             <span class="slider round"></span>
         </label>
     </div>

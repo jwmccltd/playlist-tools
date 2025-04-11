@@ -24,9 +24,6 @@ const props = defineProps({
 
 const selectedElements = defineModel();
 
-//console.log('Elements');
-//console.log(selectedElements);
-
 const openSelect = ref(false);
 
 const closeSelectModal = () => {
@@ -37,9 +34,8 @@ const resetSelected = () => {
    selectedElements = [];
 };
 
-const elementToggleId = ref(props.title.toLowerCase().replaceAll(' ',''));
 
-//console.log(elementToggleId);
+const elementToggleId = ref(props.title.toLowerCase().replaceAll(' ',''));
 
 </script>
 <template>
@@ -73,7 +69,8 @@ const elementToggleId = ref(props.title.toLowerCase().replaceAll(' ',''));
                         :ident="elementToggleId"
                         v-model="selectedElements"
                         :value="index"
-                        :id="index">
+                        :id="index"
+                        :data="data">
                      </ToggleSwitch>
                   </div>
                </div>
