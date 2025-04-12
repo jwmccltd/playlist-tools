@@ -2,7 +2,7 @@
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import ToggleSwitch from '@/Components/ToggleSwitch.vue';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import Modal from '@/Components/Modal.vue';
 import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
@@ -31,20 +31,41 @@ const closeSelectModal = () => {
 };
 
 const resetSelected = () => {
-   selectedElements = [];
+   selectedElements.value = [];
 };
 
+const isChecked = (checked) => {
+   if (checked === true) {
+      selectedElements.value = Object.keys(props.data);
+   } else {
+      resetSelected();
+   }
+}
+
+const showCount = () => {
+   return selectedElements.value.length;
+};
+
+const shouldCheckAll = computed(() => {
+   return Object.keys(props.data).length === selectedElements.value.length
+});
 
 const elementToggleId = ref(props.title.toLowerCase().replaceAll(' ',''));
 
 </script>
 <template>
     <div class="panel bg-slate-200 m-2">
-      <p>{{ title }}
-         <span>
-            <PrimaryButton @click.prevent="openSelect = true" class="ml-2">{{ buttonLabel }}</PrimaryButton>
-         </span>
-      </p>
+      <div class="flex flex-row items-center">
+         <div><p>{{ title }}</p></div>
+         <div>
+            <span>
+               <PrimaryButton @click.prevent="openSelect = true" class="ml-2">{{ buttonLabel }}</PrimaryButton>
+            </span>
+         </div>
+         <div class="letter-tiles ml-2" v-if="showCount() > 0">
+            <span class="cyan small">{{ showCount() }}</span>
+         </div>   
+      </div>
    </div>
 
    <Modal :show="openSelect" @close="closeSelectModal">
@@ -57,7 +78,7 @@ const elementToggleId = ref(props.title.toLowerCase().replaceAll(' ',''));
                <div class="text-2xl mb-4 modal-label-field">{{ modalTitle }}</div>
             </div>
             <div>
-               <ToggleSwitch :control="elementToggleId"></ToggleSwitch>
+               <ToggleSwitch :control-switch="true" @checkBoxOn="isChecked" :checked="shouldCheckAll"></ToggleSwitch>
             </div>
          </div>
          <div class="modal-scroll-height h-full overflow-y-auto">
@@ -66,11 +87,9 @@ const elementToggleId = ref(props.title.toLowerCase().replaceAll(' ',''));
                   <div class="modal-label-field">{{ item }}</div>
                   <div>
                      <ToggleSwitch 
-                        :ident="elementToggleId"
                         v-model="selectedElements"
                         :value="index"
-                        :id="index"
-                        :data="data">
+                     >
                      </ToggleSwitch>
                   </div>
                </div>

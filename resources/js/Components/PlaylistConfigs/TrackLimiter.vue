@@ -77,6 +77,14 @@ configModel.value = page.props.playlistConfigs.TrackLimiter;
       :data="playlistArtists"
    />
 
+   <ModalSelect 
+      v-model="configModel.selectedTracks"
+      :title="'Exclude these tracks from removal'"
+      :button-label="'Select Tracks'"
+      :modal-title="'Filter Tracks'"
+      :data="playlistTracks"
+   />
+
    <div class="mx-2">
       <div class="panel-small">
          <font-awesome-icon :icon="faPlus" size="xl" class="text-slate-500"/>
@@ -84,19 +92,6 @@ configModel.value = page.props.playlistConfigs.TrackLimiter;
    </div>
 
    <!--<div class="panel bg-slate-200 m-2">
-      <p>Exclude these artists from removal
-         <span>
-            <PrimaryButton @click.prevent="excludeArtistSelect = true" class="ml-2">Select Artists</PrimaryButton>
-         </span>
-      </p>
-   </div>
-   <div class="mx-2">
-      <div class="panel-small">
-         <font-awesome-icon :icon="faPlus" size="xl" class="text-slate-500"/>
-      </div> 
-   </div>-->
-
-   <div class="panel bg-slate-200 m-2">
       <p>Exclude these tracks from removal
          <span>
             <PrimaryButton @click.prevent="excludeTrackSelect = true" class="ml-2">Select Tracks</PrimaryButton>
@@ -115,44 +110,9 @@ configModel.value = page.props.playlistConfigs.TrackLimiter;
             <PrimaryButton @click.prevent="transferToSelect = true" class="ml-2">Select Playlists</PrimaryButton>
          </span>
       </p>
-   </div>
+   </div>-->
 
-   <!--<Modal :show="excludeArtistSelect" @close="closeArtistSelectModal">
-      <div class="p-6">
-         <div class="flex justify-end" @click="closeArtistSelectModal">
-            <font-awesome-icon :icon="faTimes" size="xl" class="text-slate-500 cursor-pointer"/>
-         </div>
-         <div class="flex flex-row">
-            <div>
-               <div class="text-2xl mb-4 modal-label-field">Filter Playlist Artists</div>
-            </div>
-            <div>
-               <ToggleSwitch :control="'artist-select'"></ToggleSwitch>
-            </div>
-         </div>
-         <div class="modal-scroll-height h-full overflow-y-auto">
-            <div v-for="(artist, index) of playlistArtists" :key="index">
-               <div class="flex flex-row items-center mb-2">
-                  <div class="modal-label-field">{{ artist }}</div>
-                  <div>
-                     <ToggleSwitch 
-                        :ident="'artist-select'"
-                        v-model="configModel.selectedArtists"
-                        :value="index"
-                        :id="index">
-                     </ToggleSwitch>
-                  </div>
-               </div>
-            </div>
-         </div>   
-         <div class="mt-6 flex justify-between">
-            <PrimaryButton @click.prevent="resetSelectedArtists">Reset</PrimaryButton>
-            <SecondaryButton @click="closeArtistSelectModal">Ok</SecondaryButton>
-         </div>
-      </div>
-   </Modal>-->
-
-   <Modal :show="excludeTrackSelect" @close="closeTrackSelectModal">
+   <!--<Modal :show="excludeTrackSelect" @close="closeTrackSelectModal">
       <div class="p-6">
          <div class="flex justify-end" @click="closeTrackSelectModal">
             <font-awesome-icon :icon="faTimes" size="xl" class="text-slate-500 cursor-pointer"/>
@@ -187,7 +147,7 @@ configModel.value = page.props.playlistConfigs.TrackLimiter;
             <SecondaryButton @click="closeTrackSelectModal">Ok</SecondaryButton>
          </div>
       </div>
-   </Modal>
+   </Modal>-->
 
    <Modal :show="transferToSelect" @close="closeTransferPlaylistModal">
       <div class="p-6">

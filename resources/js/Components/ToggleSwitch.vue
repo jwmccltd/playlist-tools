@@ -1,67 +1,42 @@
 <script setup>
 import { ref, watch } from 'vue';
-import { selectAllToggle } from '@/utils/selectAll.js'
+
+const emit = defineEmits(['checkBoxOn']);
 
 const props = defineProps({
-    control: {
-        type: String,
-        default: '',
-    },
-    ident: {
-        type: String,
-        default: '',
-    },
-    id: {
-        type: String,
-        required: false,
+    controlSwitch: {
+        type: Boolean,
+        default: false,
     },
     value: {
         type: String,
         required: false,
     },
-    data: {
-        type: Object,
+    checked: {
+        type: Boolean,
+        default: false,
     }
 });
 
 const selectedElements = defineModel();
 
-const checked = ref(false);
-
-const targetElements = (event, control) => {
-    selectAllToggle.state = event.target.checked;
-    selectAllToggle.ident = control;
+const emitState = (event) => {
+    emit('checkBoxOn', event.target.checked);
 };
-
-watch(selectAllToggle, (newState) => {
-  if (newState.ident === props.ident) {
-    if (selectAllToggle.state === true) {
-        checked.value = true;
-    } else {
-        checked.value = false;
-    }
-  }  
-
-  console.log(selectedElements.value);
-});
 
 </script>
 
 <template>
-    <div v-if="control !== ''">
+    <div v-if="controlSwitch === true">
         <label class="switch">
-            <input type="checkbox" @change="targetElements($event, control)" />
+            <input type="checkbox" @change="emitState($event)" :checked="checked" />
             <span class="slider round"></span>
         </label>
     </div>
     <div v-else>
         <label class="switch">
-            <input type="checkbox" :value="value" :checked="checked" @click="checked = !checked" v-model="selectedElements" />
+            <input type="checkbox" :value="value" v-model="selectedElements" />
             <span class="slider round"></span>
         </label>
     </div>
 </template>
-
-<style>
-
-</style>
