@@ -1,16 +1,17 @@
 <script setup>
 import LayoutBase from '@/Layouts/LayoutBase.vue';
 import LayoutFull from '@/Layouts/LayoutFull.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import { markRaw, ref, watch, provide } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { faPeopleGroup } from '@fortawesome/free-solid-svg-icons';
 import { faCompactDisc } from '@fortawesome/free-solid-svg-icons';
-import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import TrackLimiter from '@/Components/PlaylistConfigs/TrackLimiter.vue';
+import Arrow from '@/Components/Symbols/Arrow.vue';
 
 const props = defineProps({
     playlistId: {
@@ -81,8 +82,26 @@ watch(component, (value) => {
     configModel.value.configOptionId = value.id;
 });
 
+const page = usePage()
+const errors = ref({});
+
+const saveConfig = () => {
+
+    errors.value = {};
+
+    if (configComponent.value === null) {
+        errors.value['config'] = 'Please select an option';
+        return;
+    }
+
+    router.post(route('spotify-playlist.store'), {
+        playlistId: props.playlistId,
+        config: configModel.value,
+    });
+};
+
 watch(configModel, (modelValue) => {
-    console.log(modelValue);
+    errors.value = {};
 }, {deep: true});
 
 </script>
@@ -151,24 +170,26 @@ watch(configModel, (modelValue) => {
             <div v-if="configs.length > 0" class="mt-8">
                 <div v-for="(config, index) of configs" :key="index">
                     <div class="flex flex-wrap items-center justify-center">
-                        <div class="panel">
-                            <select class="emerald border text-sm rounded-lg block w-full p-2.5" v-model="component">
-                                <option value="0">Select Option</option>
-                                <option v-for="config of playlistConfigOptions" :key="config.id" :value="{ id: config.id, component: config.component }">
-                                    {{ config.name }}
-                                </option>
-                            </select>    
-                        </div>
-                        <div class="mx-2" v-if="component !== 0">
-                            <div class="panel-small">
-                                <font-awesome-icon :icon="faArrowRight" size="xl" class="cyan"/>
-                            </div>    
-                        </div> 
+                        <div>
+                            <div class="panel">
+                                <select class="emerald border text-sm rounded-lg block w-full p-2.5" v-model="component">
+                                    <option value="0">Select Option</option>
+                                    <option v-for="config of playlistConfigOptions" :key="config.id" :value="{ id: config.id, component: config.component }">
+                                        {{ config.name }}
+                                    </option>
+                                </select>
+                                <div class="mt-2 text-red-600" v-if="errors['config']">
+                                    <p class="text-center">Please select an option</p>
+                                </div>
+                            </div>
+                        </div>      
+                        <Arrow/>
                         <component 
                             :is="configComponent"
                             v-if="configComponent !== null"
                             v-model="configModel"
-                        />     
+                        />
+                        <SecondaryButton @click="saveConfig">Save Config</SecondaryButton>
                     </div>
                 </div>
             </div>

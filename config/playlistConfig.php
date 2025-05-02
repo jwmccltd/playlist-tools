@@ -2,6 +2,7 @@
 
 return [
     'TrackLimiter' => [
+        'limitTo' => '',
         'byRemovingOption' => 'default-end',
         'selectedArtists'  => [],
         'selectedTracks' => [],

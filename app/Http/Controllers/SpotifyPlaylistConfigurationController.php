@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\DataService;
 use Inertia\Inertia;
 use App\Models\PlaylistConfigurationOption;
+use Illuminate\Http\Request;
 
 class SpotifyPlaylistConfigurationController extends Controller
 {
@@ -61,5 +62,9 @@ class SpotifyPlaylistConfigurationController extends Controller
             'playlists'             => $playlists,
             'playlistTracks'        => $tracks,
         ]);
+    }
+
+    public function store(Request $request) {
+        dd($request);
     }
 }

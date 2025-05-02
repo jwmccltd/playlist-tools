@@ -19,6 +19,11 @@ const props = defineProps({
     },
     data: {
         type: Object,
+    },
+    optionDisplay: {
+         type: Array,
+         required: false,
+         default: [],
     }
 });    
 
@@ -43,7 +48,7 @@ const isChecked = (checked) => {
 }
 
 const showCount = () => {
-   return selectedElements.value.length;
+   return typeof selectedElements.value !== 'undefined' ? selectedElements.value.length : 0;
 };
 
 const shouldCheckAll = computed(() => {
@@ -84,12 +89,20 @@ const elementToggleId = ref(props.title.toLowerCase().replaceAll(' ',''));
          <div class="modal-scroll-height h-full overflow-y-auto">
             <div v-for="(item, index) of data" :key="index">
                <div class="flex flex-row items-center mb-2">
-                  <div class="modal-label-field">{{ item }}</div>
+                  <div class="modal-label-field" v-if="optionDisplay.length === 0">
+                     <strong>{{ item }}</strong>
+                  </div>
+                  <div v-else class="modal-label-field">
+                     <strong>{{ item[optionDisplay[0]] }}</strong>
+                     <br />
+                     <small v-if="optionDisplay[1] !== null">
+                        {{ item[optionDisplay[1]] }}
+                     </small>
+                  </div>
                   <div>
                      <ToggleSwitch 
                         v-model="selectedElements"
-                        :value="index"
-                     >
+                        :value="index">
                      </ToggleSwitch>
                   </div>
                </div>

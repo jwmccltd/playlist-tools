@@ -42,4 +42,5 @@ Route::middleware('auth')->group(function () {
      * SPOTIFY PLAYLISTS CONFIGURE
      */
     Route::get('/spotify/playlist/configure/{playlistId}', [SpotifyPlaylistConfigurationController::class, 'index'])->name('spotify-playlist.index');
+    Route::post('/spotify/playlist/save-configuration', [SpotifyPlaylistConfigurationController::class, 'store'])->name('spotify-playlist.store');
 });
