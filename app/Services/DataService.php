@@ -8,6 +8,8 @@ use App\Services\SpotifyPlaylistService;
 
 class DataService
 {
+    public $cache = true;
+
     /**
      * Constructor.
      * @param SpotifyService         $spotifyService         The spotify service class.
@@ -29,15 +31,17 @@ class DataService
      * @param string $url        The url.
      * @return array
      */
-    public function getData(string $identifier, string $url)
+    public function getData(string $identifier, string $url, $userId = null)
     {
-        $cacheData = $this->cacheService->loadCacheItem($identifier);
+        if ($this->cache === true) {
+            $cacheData = $this->cacheService->loadCacheItem($identifier);
 
-        if ($cacheData !== null) {
-            return json_decode($cacheData, true);
+            if ($cacheData !== null) {
+                return json_decode($cacheData, true);
+            }
         }
 
-        $data = $this->spotifyService->apiRequest(env('SPOTIFY_API_URL') . str_replace(',', '/', $url));
+        $data = $this->spotifyService->apiRequest(env('SPOTIFY_API_URL') . str_replace(',', '/', $url), $userId);
 
         // Decode the response JSON.
         $data = json_decode($data, true);
@@ -49,7 +53,7 @@ class DataService
             case 'playlists':
                 $chunkedData[] = $this->spotifyPlaylistService->filterUserPlaylists($data);
                 while (isset($data['next'])) {
-                    $data = $this->spotifyService->apiRequest($data['next']);
+                    $data = $this->spotifyService->apiRequest($data['next'], $userId);
                     $data = json_decode($data, true);
                     $chunkedData[] = $this->spotifyPlaylistService->filterUserPlaylists($data);
                 }
@@ -64,7 +68,6 @@ class DataService
 
                 break;
             case 'playlist':
-
                 $returnResults = $data;
                 $returnResults['all_tracks'] = [];
 
@@ -72,8 +75,8 @@ class DataService
 
                 $chunkedData[] = $data['items'];
                 while (isset($data['next'])) {
-                    $data = $this->spotifyService->apiRequest($data['next']);
-                    $data = json_decode($data, true);        
+                    $data = $this->spotifyService->apiRequest($data['next'], $userId);
+                    $data = json_decode($data, true);
                     $chunkedData[] = $data['items'];
                 }
 
@@ -87,8 +90,9 @@ class DataService
             default:
                 return $data ?? null;
         }
-
-        $this->cacheService->setCacheItem($identifier, json_encode($returnResults), now()->addDays(1));
+        if ($this->cache === true) {
+            $this->cacheService->setCacheItem($identifier, json_encode($returnResults), now()->addDays(1));
+        }
 
         return $returnResults;
     }

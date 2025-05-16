@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Services\DataService;
 use Inertia\Inertia;
 use App\Models\PlaylistConfigurationOption;
+use App\Models\PlaylistConfiguration;
+use App\Models\Playlist;
 use Illuminate\Http\Request;
+use Auth;
 
 class SpotifyPlaylistConfigurationController extends Controller
 {
@@ -51,7 +54,7 @@ class SpotifyPlaylistConfigurationController extends Controller
         }
 
         return Inertia::render('PlaylistConfiguration', [
-            'playlistId'            => $selectedPlaylistData['id'],
+            'playlistLinkId'        => $selectedPlaylistData['id'],
             'playlistName'          => $selectedPlaylistData['name'],
             'playlistDescription'   => $selectedPlaylistData['description'],
             'playlistImageUrl'      => $selectedPlaylistData['images'][0]['url'],
@@ -64,7 +67,27 @@ class SpotifyPlaylistConfigurationController extends Controller
         ]);
     }
 
-    public function store(Request $request) {
-        dd($request);
+    public function store(Request $request)
+    {
+        $request->validate([
+            'configOptionId' => 'required|integer',
+        ]);
+
+        $option = $this->playlistConfigurationOption->find($request->input('configOptionId'));
+
+        $validation = config("playlistConfigValidation.{$option->component}");
+
+        $request->validate($validation);
+
+        $playlist = Playlist::create([
+            'playlist_link_id' => $request->input('playlistLinkId'),
+            'user_id' => Auth::id()
+        ]);
+
+        PlaylistConfiguration::create([
+            'option_id' => $option->id,
+            'playlist_id' => $playlist->id,
+            'config' => json_encode($request->input('config')),
+        ]);
     }
 }

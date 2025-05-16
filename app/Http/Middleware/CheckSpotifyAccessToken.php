@@ -23,7 +23,7 @@ class CheckSpotifyAccessToken
     public function handle(Request $request, Closure $next): Response
     {
         if (Auth::check()) {
-            if (!$this->spotifyService->getSetAccessToken()) {
+            if (!$this->spotifyService->getSetAccessToken(Auth::id())) {
                 Auth::logout();
                 return redirect()->route('connect');
             }

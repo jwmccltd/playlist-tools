@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use Auth;
 use GuzzleHttp\Client;
 use App\Models\User;
 use App\Models\SpotifyAuth;
@@ -110,16 +109,17 @@ class SpotifyService
 
     /**
      * Run an api request
-     * @param string $apiUrl      The api url.
-     * @param string $accessToken The access token.
+     * @param string  $apiUrl      The api url.
+     * @param integer $userId      The user id.
+     * @param string  $accessToken The access token.
+     *
      * @return string
      */
-    public function apiRequest($apiUrl, $accessToken = null) 
+    public function apiRequest($apiUrl, $userId = null, $accessToken = null)
     {
-
         // Get access token
         if ($accessToken === null) {
-            $accessToken = $this->getSetAccessToken();
+            $accessToken = $this->getSetAccessToken($userId);
         }
 
         // Set up cURL
@@ -142,13 +142,10 @@ class SpotifyService
      * Get/set access token
      * @return string|null
      */
-    public function getSetAccessToken()
+    public function getSetAccessToken($userId)
     {
-        if (!Auth::check()) {
-            return null;
-        }
+        $user = User::find($userId);
 
-        $user = User::find(Auth::id());
         $accessToken = $this->cacheService->loadCacheItem($user->spotify_id);
 
         // If the access token is null or different to the user requested token, then request a new one.
@@ -162,7 +159,7 @@ class SpotifyService
                 //Add token to cache.
                 $this->cacheService->setCacheItem($user->spotify_id, $accessToken, now()->addMinutes(50));
 
-                $sAuth = SpotifyAuth::where('user_id', Auth::id())->first();
+                $sAuth = SpotifyAuth::where('user_id', $userId)->first();
                 $sAuth->spotify_access_token = $accessToken;
                 $sAuth->save();
             }

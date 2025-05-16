@@ -15,10 +15,19 @@ const page = usePage();
 const configModel = defineModel();
 configModel.value = { ...configModel.value, ...page.props.playlistConfigs.TrackLimiter };
 
+const props = defineProps({
+   errors: {
+        type: Object,
+   },
+});
+
 </script>
 <template>
    <div class="panel m-2">
-      <p>Limit track count to max<span><input class="mx-1.5 w-24" type="number"/>tracks</span></p>
+      <p>Limit track count to max<span><input class="mx-1.5 w-24" type="number" v-model="configModel.limitTo"/>tracks</span></p>
+      <div class="mt-2 text-red-600" v-if="errors['config.limitTo']">
+         <p class="text-center">{{ errors['config.limitTo'] }}</p>
+      </div>
    </div>
 
    <Arrow/>

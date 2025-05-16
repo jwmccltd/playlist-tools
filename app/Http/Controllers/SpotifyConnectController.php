@@ -52,7 +52,7 @@ class SpotifyConnectController extends Controller
             // API endpoint URL
             $apiUrl = env('SPOTIFY_API_URL');
 
-            $response = $this->spotifyService->apiRequest($apiUrl . 'me', $accessToken);
+            $response = $this->spotifyService->apiRequest($apiUrl . 'me', null, $accessToken);
 
             // Check for errors
             if ($response !== false && $response !== 'Error: Unable to retrieve access token.') {

@@ -14,7 +14,7 @@ import TrackLimiter from '@/Components/PlaylistConfigs/TrackLimiter.vue';
 import Arrow from '@/Components/Symbols/Arrow.vue';
 
 const props = defineProps({
-    playlistId: {
+    playlistLinkId: {
         type: String,
     },
     playlistName: {
@@ -43,7 +43,10 @@ const props = defineProps({
     },
     playlistTracks: {
         type: Object
-    }
+    },
+    errors: {
+        type: Object
+    },
 });
 
 const configModel = ref({});
@@ -78,31 +81,17 @@ const component = ref(0);
 
 watch(component, (value) => {
     setComponent(value.component);
-        
-    configModel.value.configOptionId = value.id;
 });
 
-const page = usePage()
-const errors = ref({});
+const page = usePage();
 
 const saveConfig = () => {
-
-    errors.value = {};
-
-    if (configComponent.value === null) {
-        errors.value['config'] = 'Please select an option';
-        return;
-    }
-
     router.post(route('spotify-playlist.store'), {
-        playlistId: props.playlistId,
+        playlistLinkId: props.playlistLinkId,
+        configOptionId: component.value.id,
         config: configModel.value,
     });
 };
-
-watch(configModel, (modelValue) => {
-    errors.value = {};
-}, {deep: true});
 
 </script>
 
@@ -140,7 +129,7 @@ watch(configModel, (modelValue) => {
                                             <span class="small" v-for="(stringChar, index) of stringChars(playlistFollowers)" :key="index">
                                                {{ stringChar }}
                                             </span>
-                                        </div>    
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -154,7 +143,7 @@ watch(configModel, (modelValue) => {
                                             <span class="small" v-for="(stringChar, index) of stringChars(playlistTrackTotal)" :key="index">
                                                {{ stringChar }}
                                             </span>
-                                        </div>    
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -165,7 +154,7 @@ watch(configModel, (modelValue) => {
                             </div>
                         </div>
                     </div>
-                </template>    
+                </template>
             </LayoutFull>
             <div v-if="configs.length > 0" class="mt-8">
                 <div v-for="(config, index) of configs" :key="index">
@@ -178,16 +167,17 @@ watch(configModel, (modelValue) => {
                                         {{ config.name }}
                                     </option>
                                 </select>
-                                <div class="mt-2 text-red-600" v-if="errors['config']">
-                                    <p class="text-center">Please select an option</p>
+                                <div class="mt-2 text-red-600" v-if="errors['configOptionId']">
+                                    <p class="text-center">{{ errors["configOptionId"] }}</p>
                                 </div>
                             </div>
-                        </div>      
+                        </div>
                         <Arrow/>
-                        <component 
+                        <component
                             :is="configComponent"
                             v-if="configComponent !== null"
                             v-model="configModel"
+                            :errors="errors"
                         />
                         <SecondaryButton @click="saveConfig">Save Config</SecondaryButton>
                     </div>
