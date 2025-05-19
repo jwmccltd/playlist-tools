@@ -21,7 +21,7 @@ class RunConfig extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Run the config';
 
     public function __construct(protected DataService $dataService)
     {

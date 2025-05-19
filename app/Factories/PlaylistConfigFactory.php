@@ -14,7 +14,7 @@ class PlaylistConfigFactory
             $class = "App\\PlaylistConfigs\\" . $component;
             $dataService->cache = false;
 
-            return new $class($dataService, $config);
+            return new $class($dataService, json_decode($config));
         } else {
             throw new Exception("Invalid config type.");
         }

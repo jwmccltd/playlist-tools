@@ -5,6 +5,7 @@ namespace App\PlaylistConfigs;
 use App\Services\DataService;
 abstract class PlaylistConfig
 {
+    public $selectedPlaylistData;
     public function __construct(protected DataService $dataService, protected $config) {
         // Constructor.
     }
