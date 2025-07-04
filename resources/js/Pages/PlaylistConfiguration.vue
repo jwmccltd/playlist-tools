@@ -100,14 +100,22 @@ const saveConfig = (config) => {
     }).then(function (response) {
         console.log(response);
     }).catch(function (error) {
-        console.log(error.response.data.errors);
-
         errors.value[config.itemId] = error.response.data.errors;
     });
 };
 
 const updateConfig = (config) => {
-
+    errors.value[config.itemId] = {};
+    
+    axios.post(route('spotify-playlist.update'), {
+        configId: config.id,
+        config: config.config,
+        configOptionId: config.option_id,
+    }).then(function (response) {
+        console.log(response);
+    }).catch(function (error) {
+        errors.value[config.itemId] = error.response.data.errors;
+    });
 };
 
 </script>
@@ -200,7 +208,7 @@ const updateConfig = (config) => {
                             v-if="savedConfig.component !== null"
                             v-model="savedConfig.config"
                             :errors="errors"/>
-                        <SecondaryButton @click="updateConfig">Update Config</SecondaryButton>
+                        <SecondaryButton @click="updateConfig(savedConfig)">Update Config</SecondaryButton>
                         <RedButton @click="deleteConfig(savedConfig.id)" class="ml-2">Delete Config</RedButton>
                     </div>
                 </div>

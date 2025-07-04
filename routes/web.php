@@ -42,5 +42,6 @@ Route::middleware('auth')->group(function () {
      */
     Route::get('/spotify/playlist/configure/{playlistLinkId}', [SpotifyPlaylistConfigurationController::class, 'index'])->name('spotify-playlist.index');
     Route::post('/spotify/playlist/save-configuration', [SpotifyPlaylistConfigurationController::class, 'store'])->name('spotify-playlist.store');
+    Route::post('/spotify/playlist/update-configuration', [SpotifyPlaylistConfigurationController::class, 'update'])->name('spotify-playlist.update');
     Route::post('/spotify/playlist/delete-configuration/{configId}/{playlistLinkId}', [SpotifyPlaylistConfigurationController::class, 'delete'])->name('spotify-playlist.delete');
 });

@@ -76,6 +76,20 @@ class SpotifyPlaylistConfigurationController extends Controller
         ]);
     }
 
+    public function update(Request $request)
+    {
+        dd($request->all());
+
+        $request->validate([
+            'configOptionId' => 'required|integer',
+        ]);
+
+        $option = $this->playlistConfigurationOption->find($request->input('configOptionId'));
+
+        $validation = config("playlistConfigValidation.{$option->component}");
+        $request->validate($validation);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
