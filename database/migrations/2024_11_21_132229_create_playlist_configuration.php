@@ -22,6 +22,7 @@ return new class extends Migration
                 ->references('id')->on('playlists')
                 ->onDelete('cascade');
             $table->text('config');
+            $table->boolean('active')->default(false);
         });
     }
 

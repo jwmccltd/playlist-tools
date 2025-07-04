@@ -112,10 +112,12 @@ class SpotifyService
      * @param string  $apiUrl      The api url.
      * @param integer $userId      The user id.
      * @param string  $accessToken The access token.
+     * @param string  $protocol    The protocol if not GET.
+     * @param string  $body        The body (JSON).
      *
      * @return string
      */
-    public function apiRequest($apiUrl, $userId = null, $accessToken = null)
+    public function apiRequest($apiUrl, $userId = null, $accessToken = null, $protocol = null, ?string $body = null)
     {
         // Get access token
         if ($accessToken === null) {
@@ -128,6 +130,15 @@ class SpotifyService
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Authorization: Bearer ' . $accessToken,
         ]);
+
+        if ($body !== null) {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+        }
+
+        if ($protocol !== null) {
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $protocol);
+        }
+
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
         // Execute the request

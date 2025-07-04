@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SpotifyConnectController;
 use App\Http\Controllers\SpotifyApiController;
@@ -23,10 +24,8 @@ Route::get('/spotify-auth', [SpotifyConnectController::class, 'spotifyAuth'])->n
 /*
  * DASHBOARD
  */
-
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')
+    ->middleware(['auth', 'verified']);
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -41,6 +40,7 @@ Route::middleware('auth')->group(function () {
     /*
      * SPOTIFY PLAYLISTS CONFIGURE
      */
-    Route::get('/spotify/playlist/configure/{playlistId}', [SpotifyPlaylistConfigurationController::class, 'index'])->name('spotify-playlist.index');
+    Route::get('/spotify/playlist/configure/{playlistLinkId}', [SpotifyPlaylistConfigurationController::class, 'index'])->name('spotify-playlist.index');
     Route::post('/spotify/playlist/save-configuration', [SpotifyPlaylistConfigurationController::class, 'store'])->name('spotify-playlist.store');
+    Route::post('/spotify/playlist/delete-configuration/{configId}/{playlistLinkId}', [SpotifyPlaylistConfigurationController::class, 'delete'])->name('spotify-playlist.delete');
 });

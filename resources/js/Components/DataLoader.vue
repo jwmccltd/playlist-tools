@@ -50,4 +50,3 @@ loadData();
         <Loader :loading-text="loadingText" :loading-state="loading" :finished-text="onCompleteText" />
     </div>
 </template>
-        

@@ -8,5 +8,5 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
         <div class="panel-small">
             <font-awesome-icon :icon="faPlus" size="xl" class="text-slate-500"/>
         </div>
-    </div>     
+    </div>
 </template>

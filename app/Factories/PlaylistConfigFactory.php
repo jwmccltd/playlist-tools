@@ -8,13 +8,11 @@ use App\Services\DataService;
 
 class PlaylistConfigFactory
 {
-    public static function factory(DataService $dataService, $config, $component)
+    public static function factory(DataService $dataService, $component, $userId, $playlistLinkId)
     {
         if (class_exists("App\\PlaylistConfigs\\" . $component)) {
             $class = "App\\PlaylistConfigs\\" . $component;
-            $dataService->cache = false;
-
-            return new $class($dataService, json_decode($config));
+            return new $class($dataService, $userId, $playlistLinkId);
         } else {
             throw new Exception("Invalid config type.");
         }

@@ -2,18 +2,35 @@
 
 namespace App\PlaylistConfigs;
 
-class TrackLimiter extends PlaylistConfig {
-    public function run($playlistId, $userId) {
-        $this->selectedPlaylistData = $this->dataService->getData('playlist', 'playlists/' . $playlistId, $userId);
-        $this->limit($this->config->limitTo, $this->config->byRemovingOption);
-    }
+use App\PlaylistConfigs\Operations\ExcludeArtistTracks;
+use App\PlaylistConfigs\Operations\ExcludeTracks;
+use App\PlaylistConfigs\Operations\LimitTracks;
+use App\PlaylistConfigs\Operations\AddToPlaylist;
 
-    private function limit(int $limitTo, string $byRemovingOption) {
-        switch ($byRemovingOption) {
-            case 'default-end':
-                dd($this->selectedPlaylistData);
-            break;
+class TrackLimiter extends PlaylistConfig {
+
+    use ExcludeArtistTracks;
+    use ExcludeTracks;
+    use LimitTracks;
+    use AddToPlaylist;
+
+    public function run(object $config) {
+        if (!empty($config->selectedArtists)) {
+            $omitted = $this->excludeArtistTracks($config->selectedArtists);
+            // Adjust limit to account for omitted artists.
+            $config->limitTo -= $omitted;
+        }
+
+        if (!empty($config->selectedTracks)) {
+            $omitted = $this->excludeTracks($config->selectedTracks);
+            // Adjust limit to account for omitted artists.
+            $config->limitTo -= $omitted;
+        }
+
+        $removedTracks = $this->limit($config->limitTo, $config->byRemovingOption);
+
+        if (!empty($config->selectedPlaylists) && !empty($removedTracks)) {
+            $this->addToPlaylists($config->selectedPlaylists, $removedTracks);
         }
     }
-
 }

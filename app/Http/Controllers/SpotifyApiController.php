@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\DataService;
+use Auth;
 
 class SpotifyApiController extends Controller
 {
@@ -25,6 +26,6 @@ class SpotifyApiController extends Controller
      */
     public function getData($identifier, $url)
     {
-        return $this->dataService->getData($identifier, $url);
+        return $this->dataService->getData($identifier, $url, Auth::id());
     }
 }

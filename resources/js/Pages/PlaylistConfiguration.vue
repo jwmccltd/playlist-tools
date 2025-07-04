@@ -1,9 +1,10 @@
 <script setup>
 import LayoutBase from '@/Layouts/LayoutBase.vue';
 import LayoutFull from '@/Layouts/LayoutFull.vue';
-import { Head, router, usePage } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import { markRaw, ref, watch, provide } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
+import RedButton from '@/Components/RedButton.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
@@ -44,59 +45,75 @@ const props = defineProps({
     playlistTracks: {
         type: Object
     },
-    errors: {
+    playlistConfigurations: {
         type: Object
-    },
+    }
 });
-
-const configModel = ref({});
 
 provide('playlistArtists', props.playlistArtists);
 provide('playlists', props.playlists);
 provide('playlistTracks', props.playlistTracks);
 
-const configComponent = ref(null);
-const setComponent = (selectedComponent) => {
+const getComponent = (selectedComponent) => {
+    console.log(selectedComponent);
+
     const lookup = {
-        TrackLimiter
-    }
-    configComponent.value = markRaw(lookup[selectedComponent]);
-}
+        TrackLimiter,
+    };
+
+    return markRaw(lookup[selectedComponent]);
+};
 
 const stringChars = (stringObject) => {
     const returnArray = [];
     for (var i = 0; i < stringObject.length; i++) {
-        returnArray.push(stringObject.charAt(i))
+        returnArray.push(stringObject.charAt(i));
     }
     return returnArray;
 };
 
 const configs = ref([]);
+const errors  = ref({});
 
+let count = 1;
 const addNewConfig = () => {
-    configs.value.push({});
-}
+    configs.value.push({ itemId: count, model: {}, configComponent: null });
+    count++;
+};
 
-const component = ref(0);
+const deleteConfig = (configId) => {
+    router.post(route('spotify-playlist.delete', { configId: configId, playlistLinkId: props.playlistLinkId }));
+};
 
-watch(component, (value) => {
-    setComponent(value.component);
-});
-
-const page = usePage();
-
-const saveConfig = () => {
-    router.post(route('spotify-playlist.store'), {
-        playlistLinkId: props.playlistLinkId,
-        configOptionId: component.value.id,
-        config: configModel.value,
+const removeConfig = (config) => {
+    configs.value = configs.value.filter(function (conf) {
+        return conf.itemId !== config.itemId;
     });
+};
+
+const saveConfig = (config) => {
+    errors.value[config.itemId] = {};
+    axios.post(route('spotify-playlist.store'), {
+        playlistLinkId: props.playlistLinkId,
+        configOptionId: config.configComponent === null ? null : config.configComponent.id,
+        config: config.model,
+    }).then(function (response) {
+        console.log(response);
+    }).catch(function (error) {
+        console.log(error.response.data.errors);
+
+        errors.value[config.itemId] = error.response.data.errors;
+    });
+};
+
+const updateConfig = (config) => {
+
 };
 
 </script>
 
 <template>
-    <Head title="Playist Configuration" />
+    <Head title="Playist Configuration"/>
 
     <LayoutBase>
         <template #layout>
@@ -156,30 +173,67 @@ const saveConfig = () => {
                     </div>
                 </template>
             </LayoutFull>
+            <div v-if="playlistConfigurations.length > 0">
+                <div v-for="(savedConfig, index) of playlistConfigurations" :key="index">
+                    <div class="flex flex-wrap items-center justify-center">
+                        <div>
+                            <div class="panel">
+                                <select class="emerald border text-sm rounded-lg block w-full p-2.5">
+                                    <option value="0">Select Option</option>
+                                    <option
+                                        v-for="playlistConfigOption of playlistConfigOptions"
+                                        :key="playlistConfigOption.id"
+                                        :value="{ id: playlistConfigOption.id, component: playlistConfigOption.component }"
+                                        :selected="playlistConfigOption.id === savedConfig.option_id">
+                                        {{ playlistConfigOption.name }}
+                                    </option>
+                                </select>
+                                <div v-if="errors['configOptionId']" class="mt-2 text-red-600">
+                                    <p class="text-center">{{ errors[config.itemId]['configOptionId'][0] }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <Arrow/>
+                        <component
+                            :is="getComponent(savedConfig.component)"
+                            v-if="savedConfig.component !== null"
+                            v-model="savedConfig.config"
+                            :errors="errors"/>
+                        <SecondaryButton @click="updateConfig">Update Config</SecondaryButton>
+                        <RedButton @click="deleteConfig(savedConfig.id)" class="ml-2">Delete Config</RedButton>
+                    </div>
+                </div>
+            </div>
+
             <div v-if="configs.length > 0" class="mt-8">
                 <div v-for="(config, index) of configs" :key="index">
                     <div class="flex flex-wrap items-center justify-center">
                         <div>
                             <div class="panel">
-                                <select class="emerald border text-sm rounded-lg block w-full p-2.5" v-model="component">
+                                <select v-model="config.configComponent" class="emerald border text-sm rounded-lg block w-full p-2.5">
                                     <option value="0">Select Option</option>
-                                    <option v-for="config of playlistConfigOptions" :key="config.id" :value="{ id: config.id, component: config.component }">
-                                        {{ config.name }}
+                                    <option
+                                        v-for="playlistConfigOption of playlistConfigOptions"
+                                        :key="playlistConfigOption.id"
+                                        :value="{ id: playlistConfigOption.id, component: playlistConfigOption.component }">
+                                        {{ playlistConfigOption.name }}
                                     </option>
                                 </select>
-                                <div class="mt-2 text-red-600" v-if="errors['configOptionId']">
-                                    <p class="text-center">{{ errors["configOptionId"] }}</p>
+                                <div v-if="typeof errors[config.itemId] !== 'undefined' && errors[config.itemId]['configOptionId']" class="mt-2 text-red-600">
+                                    <p class="text-center">{{ errors[config.itemId]['configOptionId'][0] }}</p>
                                 </div>
                             </div>
                         </div>
                         <Arrow/>
                         <component
-                            :is="configComponent"
-                            v-if="configComponent !== null"
-                            v-model="configModel"
-                            :errors="errors"
-                        />
-                        <SecondaryButton @click="saveConfig">Save Config</SecondaryButton>
+                            :is="getComponent(config.configComponent.component)"
+                            v-if="config.configComponent !== null"
+                            v-model="config.model"
+                            :item-id="config.itemId"
+                            :errors="errors"/>
+                        <SecondaryButton @click="saveConfig(config)">Save Config</SecondaryButton>
+                        <RedButton @click="removeConfig(config)" class="ml-2">Remove Config</RedButton>
                     </div>
                 </div>
             </div>

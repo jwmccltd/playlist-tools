@@ -5,10 +5,11 @@ namespace App\Services;
 use App\Services\CacheService;
 use App\Services\SpotifyService;
 use App\Services\SpotifyPlaylistService;
+use App\Models\User;
 
 class DataService
 {
-    public $cache = true;
+    public $cache = false;
 
     /**
      * Constructor.
@@ -25,14 +26,32 @@ class DataService
     }
 
     /**
+     * Function to make a request to the spotify api.
+     *
+     * @param string $type   Type of request (e.g. POST, DELETE).
+     * @param string $url    The url.
+     * @param int    $userId The user id.
+     * @param mixed  $body   The request body.
+     *
+     * @return string
+     */
+    public function sendRequest(string $url, int $userId, $body = null, ?string $type = null)
+    {
+        $url = env('SPOTIFY_API_URL') . $url;
+        return $this->spotifyService->apiRequest($url, $userId, null, $type, $body);
+    }
+
+    /**
      * Function to get data from spotify api, or cache.
      *
      * @param string $identifier The identifier.
      * @param string $url        The url.
      * @return array
      */
-    public function getData(string $identifier, string $url, $userId = null)
+    public function getData(string $identifier, string $url, $userId)
     {
+        $user = User::find($userId);
+
         if ($this->cache === true) {
             $cacheData = $this->cacheService->loadCacheItem($identifier);
 

@@ -25,7 +25,7 @@ const props = defineProps({
          required: false,
          default: [],
     }
-});    
+});
 
 const selectedElements = defineModel();
 
@@ -69,7 +69,7 @@ const elementToggleId = ref(props.title.toLowerCase().replaceAll(' ',''));
          </div>
          <div class="letter-tiles ml-2" v-if="showCount() > 0">
             <span class="cyan small">{{ showCount() }}</span>
-         </div>   
+         </div>
       </div>
    </div>
 
@@ -94,20 +94,20 @@ const elementToggleId = ref(props.title.toLowerCase().replaceAll(' ',''));
                   </div>
                   <div v-else class="modal-label-field">
                      <strong>{{ item[optionDisplay[0]] }}</strong>
-                     <br />
+                     <br/>
                      <small v-if="optionDisplay[1] !== null">
                         {{ item[optionDisplay[1]] }}
                      </small>
                   </div>
                   <div>
-                     <ToggleSwitch 
+                     <ToggleSwitch
                         v-model="selectedElements"
                         :value="index">
                      </ToggleSwitch>
                   </div>
                </div>
             </div>
-         </div>   
+         </div>
          <div class="mt-6 flex justify-between">
             <PrimaryButton @click.prevent="resetSelected">Reset</PrimaryButton>
             <SecondaryButton @click="closeSelectModal">Ok</SecondaryButton>
