@@ -1,18 +1,22 @@
 <script setup>
-import LayoutBase from '@/Layouts/LayoutBase.vue';
+import LayoutBasePositionTop from '@/Layouts/LayoutBasePositionTop.vue';
 import LayoutFull from '@/Layouts/LayoutFull.vue';
 import { Head, router } from '@inertiajs/vue3';
-import { markRaw, ref, watch, provide } from 'vue';
+import { ref, provide } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import RedButton from '@/Components/RedButton.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
+import { faPlay } from '@fortawesome/free-solid-svg-icons';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { faPeopleGroup } from '@fortawesome/free-solid-svg-icons';
 import { faCompactDisc } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import TrackLimiter from '@/Components/PlaylistConfigs/TrackLimiter.vue';
+import PlaylistConfig from '@/Components/PlaylistConfigs/PlaylistConfig.vue';
+import PlaylistConfigInfo from '@/Components/PlaylistConfigs/Info/PlaylistConfigInfo.vue';
 import Arrow from '@/Components/Symbols/Arrow.vue';
+import ToggleSwitch from '@/Components/ToggleSwitch.vue';
+import draggable from 'vuedraggable';
 
 const props = defineProps({
     playlistLinkId: {
@@ -47,6 +51,9 @@ const props = defineProps({
     },
     playlistConfigurations: {
         type: Object
+    },
+    playlistConfigurationOptionFields: {
+        type: Object,
     }
 });
 
@@ -54,14 +61,12 @@ provide('playlistArtists', props.playlistArtists);
 provide('playlists', props.playlists);
 provide('playlistTracks', props.playlistTracks);
 
-const getComponent = (selectedComponent) => {
-    console.log(selectedComponent);
+const getComponentFields = (optionId) => {
+    const configFields = props.playlistConfigurationOptionFields.filter((fields) => {
+        return fields.option_id === optionId;
+    });
 
-    const lookup = {
-        TrackLimiter,
-    };
-
-    return markRaw(lookup[selectedComponent]);
+    return configFields[0].config_fields;
 };
 
 const stringChars = (stringObject) => {
@@ -75,10 +80,8 @@ const stringChars = (stringObject) => {
 const configs = ref([]);
 const errors  = ref({});
 
-let count = 1;
 const addNewConfig = () => {
-    configs.value.push({ itemId: count, model: {}, configComponent: null });
-    count++;
+    configs.value.push({ itemId: configs.value.length + 1, model: {}, configComponent: null });
 };
 
 const deleteConfig = (configId) => {
@@ -96,9 +99,9 @@ const saveConfig = (config) => {
     axios.post(route('spotify-playlist.store'), {
         playlistLinkId: props.playlistLinkId,
         configOptionId: config.configComponent === null ? null : config.configComponent.id,
-        config: config.model,
+        ... config.model,
     }).then(function (response) {
-        console.log(response);
+        config.id = response.data;
     }).catch(function (error) {
         errors.value[config.itemId] = error.response.data.errors;
     });
@@ -106,24 +109,82 @@ const saveConfig = (config) => {
 
 const updateConfig = (config) => {
     errors.value[config.itemId] = {};
-    
+
     axios.post(route('spotify-playlist.update'), {
         configId: config.id,
-        config: config.config,
-        configOptionId: config.option_id,
+        configOptionId: config.configComponent.id,
+        ... config.model,
     }).then(function (response) {
-        console.log(response);
+
     }).catch(function (error) {
         errors.value[config.itemId] = error.response.data.errors;
     });
 };
 
+const executeConfig = () => {
+    axios.post(route('spotify-playlist.execute-config', { playlistLinkId: props.playlistLinkId })).then(function (response) {
+        console.log(response);
+    }).catch(function (error) {
+        console.log(error);
+    });
+};
+
+const updateStepOrder = () => {
+
+    const configOrderIds = [];
+    let step = 1;
+    activeConfigs.value.forEach((config) => {
+        configOrderIds.push(config.id);
+        config.step = step;
+        step++;
+    });
+
+    if (configOrderIds.length > 0) {
+        axios.post(route('spotify-playlist.update-step-order', { ids: configOrderIds }));
+    }
+
+};
+
+const refreshActiveConfigs = () => {
+    activeConfigs.value = configs.value.filter((config) => {
+        return config.active === 1;
+    });
+    updateStepOrder();
+};
+
+const configActive = (event, config) => {
+    if (event === true) {
+        config.active = 1;
+        refreshActiveConfigs();
+    } else {
+        config.active = 0;
+        refreshActiveConfigs();
+    }
+
+    axios.post(route('spotify-playlist.update-active-state', { configId: config.id, state: config.active }));
+};
+
+configs.value = props.playlistConfigurations;
+
+const activeConfigs = ref([]);
+const drag = ref(false);
+
+refreshActiveConfigs();
+
+activeConfigs.value = configs.value.filter((config) => {
+    return config.active === 1;
+});
+
+const hasDraftConfig = () => {
+    return configs.value.length !== activeConfigs.value.length;
+};
+
 </script>
 
 <template>
-    <Head title="Playist Configuration"/>
+    <Head title="Playlist Configuration"/>
 
-    <LayoutBase>
+    <LayoutBasePositionTop>
         <template #layout>
             <LayoutFull>
                 <template #logo>
@@ -138,7 +199,7 @@ const updateConfig = (config) => {
                                     <span class="text-lg font-bold">{{ playlistName }}</span>
                                 </div>
                                 <div>
-                                    <img :src="playlistImageUrl" class="playlist-tile" />
+                                    <img :src="playlistImageUrl" class="playlist-tile"/>
                                 </div>
                             </div>
                         </div>
@@ -146,13 +207,13 @@ const updateConfig = (config) => {
                             <p class="mb-2"><strong>{{ playlistDescription }}</strong></p>
                             <div class="flex flex-row items-center">
                                 <div class="p-2">
-                                    <font-awesome-icon :icon="faPeopleGroup" size="xl" class="emerald" />
+                                    <font-awesome-icon :icon="faPeopleGroup" size="xl" class="emerald"/>
                                 </div>
                                 <div class="p-2">
                                     <div class="flex items-center w-full justify-center fill-current text-gray-500">
                                         <div class="letter-tiles">
-                                            <span class="small" v-for="(stringChar, index) of stringChars(playlistFollowers)" :key="index">
-                                               {{ stringChar }}
+                                            <span v-for="(stringChar, index) of stringChars(playlistFollowers)" :key="index" class="small">
+                                                {{ stringChar }}
                                             </span>
                                         </div>
                                     </div>
@@ -165,8 +226,8 @@ const updateConfig = (config) => {
                                 <div class="p-2">
                                     <div class="flex items-center w-full justify-center fill-current text-gray-500">
                                         <div class="letter-tiles">
-                                            <span class="small" v-for="(stringChar, index) of stringChars(playlistTrackTotal)" :key="index">
-                                               {{ stringChar }}
+                                            <span v-for="(stringChar, index) of stringChars(playlistTrackTotal)" :key="index" class="small">
+                                                {{ stringChar }}
                                             </span>
                                         </div>
                                     </div>
@@ -174,77 +235,95 @@ const updateConfig = (config) => {
                             </div>
                             <div class="mt-auto ml-auto">
                                 <PrimaryButton @click.prevent="addNewConfig">
-                                    <span>ADD NEW CONFIG</span><font-awesome-icon :icon="faPlus" class="ml-2" />
+                                    <span>ADD NEW CONFIG</span><font-awesome-icon :icon="faPlus" class="ml-2"/>
                                 </PrimaryButton>
+                                <RedButton v-if="activeConfigs.length > 0" @click="executeConfig()" class="ml-2">
+                                    <span>EXECUTE CONFIG</span><font-awesome-icon :icon="faPlay" class="ml-2"/>
+                                </RedButton>
                             </div>
                         </div>
                     </div>
                 </template>
             </LayoutFull>
-            <div v-if="playlistConfigurations.length > 0">
-                <div v-for="(savedConfig, index) of playlistConfigurations" :key="index">
-                    <div class="flex flex-wrap items-center justify-center">
-                        <div>
-                            <div class="panel">
-                                <select class="emerald border text-sm rounded-lg block w-full p-2.5">
-                                    <option value="0">Select Option</option>
-                                    <option
-                                        v-for="playlistConfigOption of playlistConfigOptions"
-                                        :key="playlistConfigOption.id"
-                                        :value="{ id: playlistConfigOption.id, component: playlistConfigOption.component }"
-                                        :selected="playlistConfigOption.id === savedConfig.option_id">
-                                        {{ playlistConfigOption.name }}
-                                    </option>
-                                </select>
-                                <div v-if="errors['configOptionId']" class="mt-2 text-red-600">
-                                    <p class="text-center">{{ errors[config.itemId]['configOptionId'][0] }}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <Arrow/>
-                        <component
-                            :is="getComponent(savedConfig.component)"
-                            v-if="savedConfig.component !== null"
-                            v-model="savedConfig.config"
-                            :errors="errors"/>
-                        <SecondaryButton @click="updateConfig(savedConfig)">Update Config</SecondaryButton>
-                        <RedButton @click="deleteConfig(savedConfig.id)" class="ml-2">Delete Config</RedButton>
-                    </div>
+            <div v-if="activeConfigs.length > 0" class="mt-8 pl-3 pr-3 mb-8 w-full">
+                <div class="letter-tiles">
+                    <span v-for="(letter, index) of ['A','C','T','I','V','E']" :key="index" class="medium">
+                        {{ letter }}
+                    </span>
                 </div>
-            </div>
 
-            <div v-if="configs.length > 0" class="mt-8">
-                <div v-for="(config, index) of configs" :key="index">
-                    <div class="flex flex-wrap items-center justify-center">
-                        <div>
-                            <div class="panel">
-                                <select v-model="config.configComponent" class="emerald border text-sm rounded-lg block w-full p-2.5">
-                                    <option value="0">Select Option</option>
-                                    <option
-                                        v-for="playlistConfigOption of playlistConfigOptions"
-                                        :key="playlistConfigOption.id"
-                                        :value="{ id: playlistConfigOption.id, component: playlistConfigOption.component }">
-                                        {{ playlistConfigOption.name }}
-                                    </option>
-                                </select>
-                                <div v-if="typeof errors[config.itemId] !== 'undefined' && errors[config.itemId]['configOptionId']" class="mt-2 text-red-600">
-                                    <p class="text-center">{{ errors[config.itemId]['configOptionId'][0] }}</p>
+                <draggable
+                    @start="drag=true"
+                    @end="drag=false"
+                    @change="updateStepOrder()"
+                    v-model="activeConfigs"
+                    item-key="id">
+                    <template #item="{element}">
+                        <div class="flex flex-wrap items-center justify-center main-content-full active-config-background relative">
+                            <div class="absolute left-4 top-4 text-center">
+                                <div>
+                                    <span class="letter-tiles">
+                                        <span class="emerald small">
+                                            {{ element.step }}
+                                        </span>
+                                    </span>
                                 </div>
                             </div>
+                            <PlaylistConfigInfo :config="element" :fields="getComponentFields(element.configComponent.id)"/>
+                            <ToggleSwitch
+                                v-if="element.id"
+                                @check-box-on="configActive($event, element)"
+                                :control-switch="true"
+                                :checked="element.active === 1"
+                                title="activate / deactivate"
+                                class="ml-2"/>
                         </div>
-                        <Arrow/>
-                        <component
-                            :is="getComponent(config.configComponent.component)"
-                            v-if="config.configComponent !== null"
-                            v-model="config.model"
-                            :item-id="config.itemId"
-                            :errors="errors"/>
-                        <SecondaryButton @click="saveConfig(config)">Save Config</SecondaryButton>
-                        <RedButton @click="removeConfig(config)" class="ml-2">Remove Config</RedButton>
+                    </template>
+                </draggable>
+            </div>
+            <div v-if="configs.length > 0 && hasDraftConfig()" class="mt-8 pl-3 pr-3 mb-8 w-full">
+                <div class="letter-tiles">
+                    <span v-for="(letter, index) of ['D','R','A','F','T']" :key="index" class="medium">
+                        {{ letter }}
+                    </span>
+                </div>
+                <div class="mb-8">
+                    <div v-for="(config, index) of configs" :key="index">
+                        <div v-if="!config.active" class="flex flex-wrap items-center justify-center main-content-full" :class="{ 'update-config-background' : config.id }">
+                            <div>
+                                <div class="panel bg-white">
+                                    <select v-model="config.configComponent" class="emerald border text-sm rounded-lg block w-full p-2.5">
+                                        <option value="null">Select Option</option>
+                                        <option
+                                            v-for="playlistConfigOption of playlistConfigOptions"
+                                            :key="playlistConfigOption.id"
+                                            :value="{ id: playlistConfigOption.id, component: playlistConfigOption.component }">
+                                            {{ playlistConfigOption.name }}
+                                        </option>
+                                    </select>
+                                    <div v-if="typeof errors[config.itemId] !== 'undefined' && errors[config.itemId]['configOptionId']" class="mt-2 text-red-600">
+                                        <p class="text-center">{{ errors[config.itemId]['configOptionId'][0] }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <Arrow/>
+
+                            <PlaylistConfig
+                                v-if="config.configComponent !== null"
+                                v-model="config.model"
+                                :fields="getComponentFields(config.configComponent.id)"
+                                :option-id="config.configComponent.id"
+                                :item-id="config.itemId"
+                                :errors="errors"/>
+                            <SecondaryButton v-if="!config.id" @click="saveConfig(config)">Save Config</SecondaryButton>
+                            <SecondaryButton v-else @click="updateConfig(config)">Update Config</SecondaryButton>
+                            <RedButton v-if="!config.id" @click="removeConfig(config)" class="ml-2">Remove Config</RedButton>
+                            <RedButton v-else @click="deleteConfig(config)" class="ml-2">Delete Config</RedButton>
+                            <ToggleSwitch v-if="config.id" @check-box-on="configActive($event, config)" :control-switch="true" :checked="config.active === 1" title="activate / deactivate" class="ml-2"/>
+                        </div>
                     </div>
                 </div>
             </div>
         </template>
-    </LayoutBase>
+    </LayoutBasePositionTop>
 </template>

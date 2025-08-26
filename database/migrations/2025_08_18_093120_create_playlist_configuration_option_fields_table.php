@@ -11,19 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('playlist_configurations', function (Blueprint $table) {
+        Schema::create('playlist_configuration_option_fields', function (Blueprint $table) {
             $table->id();
+            $table->timestamps();
             $table->unsignedBigInteger('option_id');
             $table->foreign('option_id')
                 ->references('id')->on('playlist_configuration_options')
                 ->onDelete('cascade');
-            $table->unsignedBigInteger('playlist_id');
-            $table->foreign('playlist_id')
-                ->references('id')->on('playlists')
-                ->onDelete('cascade');
-            $table->json('config');
-            $table->boolean('active')->default(false);
-            $table->integer('step')->default(1);
+            $table->json('config_fields');
         });
     }
 
@@ -32,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('playlist_configurations');
+        Schema::dropIfExists('playlist_configuration_option_fields');
     }
 };

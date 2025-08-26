@@ -3,7 +3,7 @@ import { ref, watch } from 'vue';
 
 const emit = defineEmits(['checkBoxOn']);
 
-const props = defineProps({
+defineProps({
     controlSwitch: {
         type: Boolean,
         default: false,
@@ -15,7 +15,7 @@ const props = defineProps({
     checked: {
         type: Boolean,
         default: false,
-    }
+    },
 });
 
 const selectedElements = defineModel();
@@ -29,13 +29,13 @@ const emitState = (event) => {
 <template>
     <div v-if="controlSwitch === true">
         <label class="switch">
-            <input type="checkbox" @change="emitState($event)" :checked="checked" />
+            <input @change="emitState($event)" type="checkbox" :checked="checked"/>
             <span class="slider round"></span>
         </label>
     </div>
     <div v-else>
         <label class="switch">
-            <input type="checkbox" :value="value" v-model="selectedElements" />
+            <input v-model="selectedElements" type="checkbox" :value="value"/>
             <span class="slider round"></span>
         </label>
     </div>

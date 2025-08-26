@@ -18,6 +18,11 @@
     line-height: 1rem;
 }
 
+.letter-tiles span.medium {
+    font-size: 1.5rem;
+    line-height: 1.5rem;
+}
+
 span.emerald, select.emerald {
     @apply bg-emerald-900 text-white;
 }
@@ -27,7 +32,7 @@ span.emerald, select.emerald {
 }
 
 .letter-tiles span.yellow {
-    @apply bg-yellow-300 text-black;
+    @apply bg-yellow-100 text-black;
 }
 
 svg.emerald {
@@ -110,6 +115,14 @@ svg.cyan {
 
 .main-content-full {
     @apply w-full mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg;
+}
+
+.active-config-background {
+    @apply bg-yellow-300;
+}
+
+.update-config-background {
+    @apply bg-black;
 }
 
 .main-content-small {

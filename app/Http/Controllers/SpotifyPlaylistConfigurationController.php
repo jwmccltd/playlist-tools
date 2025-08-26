@@ -6,8 +6,10 @@ use App\Services\DataService;
 use App\Services\SpotifyPlaylistConfigService;
 use Inertia\Inertia;
 use App\Models\PlaylistConfigurationOption;
+use App\Models\PlaylistConfigurationOptionField;
 use App\Models\PlaylistConfiguration;
 use App\Models\Playlist;
+use App\PlaylistConfigs\RunPlaylistConfig;
 use Illuminate\Http\Request;
 use Auth;
 
@@ -17,23 +19,24 @@ class SpotifyPlaylistConfigurationController extends Controller
      * Constructor.
      * @param DataService $dataService The data service.
      * @param PlaylistConfigurationOption $playlistConfigurationOption Playlist configuration options.
+     * @param PlaylistConfigurationOptionField $playlistConfigurationOptionField The option fields linked to the playlist configuration option.
+     * @param SpotifyPlaylistConfigService $spotifyPlaylistConfigService Spotify playlist config service id.
+     * @param RunPlaylistConfig $runPlaylistConfig Playlist config runner.
      */
     public function __construct(
         protected DataService $dataService,
         protected PlaylistConfigurationOption $playlistConfigurationOption,
+        protected PlaylistConfigurationOptionField $playlistConfigurationOptionField,
         protected SpotifyPlaylistConfigService $spotifyPlaylistConfigService,
+        protected RunPlaylistConfig $runPlaylistConfig,
     ) {
         // Constructor
     }
 
     public function index(string $playlistLinkId)
     {
-        $playlistConfig = $this->spotifyPlaylistConfigService->getPlaylistConfig($playlistLinkId);
+        $playlistConfigurations = $this->spotifyPlaylistConfigService->getPlaylistConfig($playlistLinkId);
         $selectedPlaylistData = $this->dataService->getData('playlist', 'playlists/' . $playlistLinkId, Auth::id());
-
-        foreach ($playlistConfig as $i => $config) {
-            $playlistConfig[$i]['config'] = json_decode($config['config']);
-        }
 
         $artists = [];
         $tracks = [];
@@ -62,31 +65,54 @@ class SpotifyPlaylistConfigurationController extends Controller
         }
 
         return Inertia::render('PlaylistConfiguration', [
-            'playlistLinkId'         => $selectedPlaylistData['id'],
-            'playlistName'           => $selectedPlaylistData['name'],
-            'playlistDescription'    => $selectedPlaylistData['description'],
-            'playlistImageUrl'       => $selectedPlaylistData['images'][0]['url'],
-            'playlistFollowers'      => (string) $selectedPlaylistData['followers']['total'] ?? '0',
-            'playlistTrackTotal'     => (string) $selectedPlaylistData['tracks']['total'] ?? '0',
-            'playlistConfigOptions'  => $this->playlistConfigurationOption->get(),
-            'playlistArtists'        => $artists,
-            'playlists'              => $playlists,
-            'playlistTracks'         => $tracks,
-            'playlistConfigurations' => $playlistConfig,
+            'playlistLinkId'                    => $selectedPlaylistData['id'],
+            'playlistName'                      => $selectedPlaylistData['name'],
+            'playlistDescription'               => $selectedPlaylistData['description'],
+            'playlistImageUrl'                  => $selectedPlaylistData['images'][0]['url'],
+            'playlistFollowers'                 => (string) $selectedPlaylistData['followers']['total'] ?? '0',
+            'playlistTrackTotal'                => (string) $selectedPlaylistData['tracks']['total'] ?? '0',
+            'playlistConfigOptions'             => $this->playlistConfigurationOption->get(),
+            'playlistConfigurationOptionFields' => $this->playlistConfigurationOptionField->get(),
+            'playlistArtists'                   => $artists,
+            'playlists'                         => $playlists,
+            'playlistTracks'                    => $tracks,
+            'playlistConfigurations'            => $playlistConfigurations,
         ]);
     }
 
     public function update(Request $request)
     {
-        dd($request->all());
-
         $request->validate([
             'configOptionId' => 'required|integer',
+            'configId'       => 'required|integer',
         ]);
 
-        $option = $this->playlistConfigurationOption->find($request->input('configOptionId'));
+        $optionFields = $this->playlistConfigurationOptionField->where('option_id', $request->input('configOptionId'))->first();
+        $optionFields = json_decode($optionFields->config_fields, true);
 
-        $validation = config("playlistConfigValidation.{$option->component}");
+        $this->validateData($request, $optionFields);
+
+        $config = $request->all();
+        unset($config['playlistLinkId']);
+        unset($config['configOptionId']);
+
+        $playlistConfig = PlaylistConfiguration::where('id', $request->input('configId'))->first();
+        $playlistConfig->config = json_encode($config);
+        $playlistConfig->option_id = $request->input('configOptionId');
+        $playlistConfig->active = 0;
+        $playlistConfig->save();
+    }
+
+    private function validateData($request, $optionFields)
+    {
+        // Compile validation from option fields.
+        $validation = [];
+        foreach ($optionFields as $fieldName => $field) {
+            if (isset($field['validation'])) {
+                $validation[$fieldName] = $field['validation'];
+            }
+        }
+
         $request->validate($validation);
     }
 
@@ -96,11 +122,10 @@ class SpotifyPlaylistConfigurationController extends Controller
             'configOptionId' => 'required|integer',
         ]);
 
-        $option = $this->playlistConfigurationOption->find($request->input('configOptionId'));
+        $optionFields = $this->playlistConfigurationOptionField->where('option_id', $request->input('configOptionId'))->first();
+        $optionFields = $optionFields->config_fields;
 
-        $validation = config("playlistConfigValidation.{$option->component}");
-
-        $request->validate($validation);
+        $this->validateData($request, $optionFields);
 
         $playlist = Playlist::where('playlist_link_id', $request->input('playlistLinkId'))->first();
 
@@ -111,11 +136,24 @@ class SpotifyPlaylistConfigurationController extends Controller
             ]);
         }
 
-        PlaylistConfiguration::create([
-            'option_id' => $option->id,
+        $config = $request->all();
+        unset($config['playlistLinkId']);
+        unset($config['configOptionId']);
+
+        $config = PlaylistConfiguration::create([
+            'option_id' => $request->input('configOptionId'),
             'playlist_id' => $playlist->id,
-            'config' => json_encode($request->input('config')),
+            'config' => json_encode($config),
         ]);
+
+        $config->step = $config->id;
+        $config->save();
+
+        return $config->id;
+    }
+
+    public function updateActiveState($configId, $state) {
+        PlaylistConfiguration::where('id', $configId)->update(['active' => $state]);
     }
 
     public function delete($configId, $playlistLinkId)
@@ -123,5 +161,19 @@ class SpotifyPlaylistConfigurationController extends Controller
         PlaylistConfiguration::find($configId)->delete();
 
         return redirect()->route('spotify-playlist.index', [$playlistLinkId]);
+    }
+
+    public function updateStepOrder(string $ids)
+    {
+        $idArray = explode(',', $ids);
+
+        foreach ($idArray as $i => $id) {
+            PlaylistConfiguration::where('id', $id)->update(['step' => $i+1]);
+        }
+    }
+
+    public function executeConfig($playlistLinkId)
+    {
+        $this->runPlaylistConfig->run($playlistLinkId, Auth::id());
     }
 }
