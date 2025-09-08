@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreign('playlist_id')
                 ->references('id')->on('playlists')
                 ->onDelete('cascade');
-            $table->json('config');
+            $table->json('config')->nullable();
             $table->boolean('active')->default(false);
             $table->integer('step')->default(1);
         });

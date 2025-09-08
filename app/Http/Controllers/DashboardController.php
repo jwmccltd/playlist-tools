@@ -7,11 +7,13 @@ use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
-    public function __construct(protected SpotifyPlaylistConfigService $spotifyPlaylistConfigService) {
+    public function __construct(protected SpotifyPlaylistConfigService $spotifyPlaylistConfigService)
+    {
         // Constructor.
     }
 
-    public function index() {
+    public function index()
+    {
         $playlistsWithConfigs = $this->spotifyPlaylistConfigService->getPlaylistsWithConfigs();
 
         return Inertia::render('Dashboard', [

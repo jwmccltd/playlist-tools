@@ -6,7 +6,13 @@ use Auth;
 
 class SpotifyPlaylistService
 {
-    public function filterUserPlaylists($data) {
+    /**
+     * Get playlists owned by user with given spotify id.
+     * @param array $data An array of data containing items from spotify API.
+     * @return array
+     */
+    public function filterUserPlaylists($data): array
+    {
         $spotifyId = Auth::user()->spotify_id;
 
         $results = array_filter($data['items'], function ($item) use ($spotifyId) {

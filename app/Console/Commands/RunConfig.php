@@ -3,9 +3,10 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Models\PlaylistConfiguration;
-use App\Factories\PlaylistConfigFactory;
+use App\Models\PlaylistConfigurationSchedule;
+use App\PlaylistConfigs\RunPlaylistConfig;
 use App\Services\DataService;
+use App\Services\SpotifyService;
 
 class RunConfig extends Command
 {
@@ -21,10 +22,13 @@ class RunConfig extends Command
      *
      * @var string
      */
-    protected $description = 'Run the config';
+    protected $description = 'Run the configs for all playlists with configs set';
 
-    public function __construct(protected DataService $dataService)
-    {
+    public function __construct(
+        protected DataService $dataService,
+        protected RunPlaylistConfig $runPlaylistConfig,
+        protected SpotifyService $spotifyService
+    ) {
         parent::__construct();
     }
 
@@ -33,21 +37,34 @@ class RunConfig extends Command
      */
     public function handle()
     {
-        $playlistConfigs = PlaylistConfiguration
-            ::where('playlist_configurations.active', 1)
-            ->join('playlist_configuration_options', 'playlist_configuration_options.id', 'playlist_configurations.option_id')
-            ->join('playlists', 'playlists.id', 'playlist_configurations.playlist_id')
-            ->selectRaw('playlist_configurations.*, playlist_configuration_options.*, playlists.*')
+        $schedules = PlaylistConfigurationSchedule::join('playlists', 'playlists.id', 'playlist_configuration_schedule.playlist_id')
+            ->whereNotNull('activated')
+            ->selectRaw('playlists.playlist_link_id, playlists.user_id, playlist_configuration_schedule.*')
             ->get();
 
-        foreach ($playlistConfigs as $config) {
-            $factory = PlaylistConfigFactory::factory(
-                $this->dataService,
-                $config->component,
-                $config->user_id,
-                $config->playlist_link_id
-            );
-            $factory->run(json_decode($config->config));
+        foreach ($schedules as $schedule) {
+            // Make sure access token is up to date.
+            $this->spotifyService->getSetAccessToken($schedule->user_id);
+
+            switch ($schedule->frequency) {
+                case 'daily':
+                    $this->runPlaylistConfig->runDaily(
+                        $schedule->playlist_link_id,
+                        $schedule->user_id,
+                        $schedule->run_at_time,
+                        $schedule->days,
+                        $schedule->last_run,
+                    );
+                    break;
+                case 'hourly':
+                    $this->runPlaylistConfig->runHourly(
+                        $schedule->playlist_link_id,
+                        $schedule->user_id,
+                        $schedule->days,
+                        $schedule->last_run,
+                    );
+                    break;
+            }
         }
     }
 }

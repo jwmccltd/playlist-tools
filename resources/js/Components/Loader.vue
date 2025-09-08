@@ -9,22 +9,22 @@ defineProps({
     },
     loadingState: {
         type: Boolean,
-        default: false
+        default: false,
     },
     finishedText: {
         type: String,
         required: false,
         default: null,
-    }
+    },
 });
 
 </script>
 
 <template>
-    <div class="flex content-center place-items-center loading" v-if="loadingState === true">
+    <div v-if="loadingState === true" class="flex content-center place-items-center loading">
         <div class="text-lg">{{ loadingText }}<span>.</span><span>.</span><span>.</span></div> <font-awesome-icon :icon="faCompactDisc" class="ml-2" size="2x" spin/>
-    </div>    
+    </div>
     <div v-else-if="finishedText !== null" class="flex content-center place-items-center">
-        <div class="text-lg">{{ finishedText }}<span>.</span><span>.</span><span>.</span></div> <div><font-awesome-icon :icon="faCompactDisc" class="ml-2" size="2x"/></div>    
+        <div class="text-lg">{{ finishedText }}<span>.</span><span>.</span><span>.</span></div> <div><font-awesome-icon :icon="faCompactDisc" class="ml-2" size="2x"/></div>
     </div>
 </template>

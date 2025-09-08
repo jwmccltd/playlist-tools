@@ -28,27 +28,31 @@ class DataService
     /**
      * Function to make a request to the spotify api.
      *
-     * @param string $type   Type of request (e.g. POST, DELETE).
-     * @param string $url    The url.
-     * @param int    $userId The user id.
-     * @param mixed  $body   The request body.
+     * @param string  $type   Type of request (e.g. POST, DELETE).
+     * @param string  $url    The url.
+     * @param integer $userId The user id.
+     * @param mixed   $body   The request body.
+     * @param string  $type   The type.
+     * @param mixed   $fields The query fields.
      *
      * @return string
      */
-    public function sendRequest(string $url, int $userId, $body = null, ?string $type = null)
+    public function sendRequest(string $url, int $userId, $body = null, ?string $type = null, $fields = null)
     {
         $url = env('SPOTIFY_API_URL') . $url;
-        return $this->spotifyService->apiRequest($url, $userId, null, $type, $body);
+        return $this->spotifyService->apiRequest($url, $userId, null, $type, $body, $fields);
     }
 
     /**
      * Function to get data from spotify api, or cache.
      *
-     * @param string $identifier The identifier.
-     * @param string $url        The url.
+     * @param string  $identifier The identifier.
+     * @param string  $url        The url.
+     * @param integer $userId     The user id.
+     * @param string  $fields     The fields if required.
      * @return array
      */
-    public function getData(string $identifier, string $url, $userId)
+    public function getData(string $identifier, string $url, $userId, $fields = null)
     {
         $user = User::find($userId);
 
@@ -60,7 +64,7 @@ class DataService
             }
         }
 
-        $data = $this->spotifyService->apiRequest(env('SPOTIFY_API_URL') . str_replace(',', '/', $url), $userId);
+        $data = $this->spotifyService->apiRequest(env('SPOTIFY_API_URL') . str_replace(',', '/', $url), $userId, fields: $fields);
 
         // Decode the response JSON.
         $data = json_decode($data, true);
@@ -68,6 +72,7 @@ class DataService
         $chunkedData = [];
         $returnResults = [];
 
+        // Various processes to collate and format the data.
         switch ($identifier) {
             case 'playlists':
                 $chunkedData[] = $this->spotifyPlaylistService->filterUserPlaylists($data);
@@ -86,6 +91,35 @@ class DataService
                 }
 
                 break;
+            case 'tracks':
+                $returnResults = $data;
+                $returnResults['all_tracks'] = [];
+
+                $chunkedData[] = $data['items'];
+                while (isset($data['next'])) {
+                    $data = $this->spotifyService->apiRequest($data['next'], $userId);
+                    $data = json_decode($data, true);
+                    $chunkedData[] = $data['items'];
+                }
+
+                foreach ($chunkedData as $i => $chunkData) {
+                    if (empty($chunkData) === false) {
+                        foreach ($chunkData as $track) {
+                            $returnResults['all_tracks'][] = [
+                                'uri' => $track['track']['uri'],
+                                'added_at' => $track['added_at'],
+                                'id' => $track['track']['id'],
+                                'artists' => $track['track']['artists'],
+                                'name' => $track['track']['name'],
+                            ];
+                        }
+                    }
+                }
+
+                $returnResults = $returnResults['all_tracks'];
+
+                break;
+
             case 'playlist':
                 $returnResults = $data;
                 $returnResults['all_tracks'] = [];

@@ -3,18 +3,27 @@
 namespace App\Services;
 
 use App\Models\PlaylistConfiguration;
+use App\Models\PlaylistConfigurationOption;
 
 class SpotifyPlaylistConfigService
 {
-    public function __construct(protected PlaylistConfiguration $playlistConfiguration)
-    {
+    public function __construct(
+        protected PlaylistConfiguration $playlistConfiguration,
+        protected PlaylistConfigurationOption $playlistConfigurationOption
+    ) {
         // Constructor.
     }
 
-    public function getPlaylistsWithConfigs()
+    /**
+     * Get all playlists with configs
+     *
+     * @return array
+     */
+    public function getPlaylistsWithConfigs(): array
     {
         return PlaylistConfiguration
             ::join('playlists', 'playlists.id', 'playlist_configurations.playlist_id')
+            ->join('playlist_configuration_options', 'playlist_configuration_options.id', 'playlist_configurations.option_id')
             ->selectRaw('
                 SUM(
                     CASE WHEN playlist_configurations.active = 1 THEN
@@ -30,36 +39,49 @@ class SpotifyPlaylistConfigService
                     END) AS inactive_count,
                 playlists.playlist_link_id
             ')
+            ->where('is_global', 0)
             ->groupBy('playlist_link_id')
             ->get()
             ->keyBy('playlist_link_id')
             ->toArray();
     }
 
-    public function getPlaylistConfig($playlistLinkId)
+    /**
+     * Get playlist config options with any saved config.
+     *
+     * @return array
+     */
+    public function getPlaylistConfig($playlistLinkId): array
     {
-        $playlistConfigurations = PlaylistConfiguration
-            ::join('playlists', 'playlists.id', 'playlist_configurations.playlist_id')
-            ->join('playlist_configuration_options', 'playlist_configurations.option_id', 'playlist_configuration_options.id')
-            ->join('playlist_configuration_option_fields', 'playlist_configuration_option_fields.option_id', 'playlist_configuration_options.id')
-            ->orderBy('step')
-            ->where('playlist_link_id', $playlistLinkId)
-            ->selectRaw('playlist_configurations.*, playlist_configuration_options.component')
+        $playlistConfigurations = $this->playlistConfigurationOption
+            ->with('fields')
+            ->with([
+                'config' => function ($query) use ($playlistLinkId) {
+                    $query->join('playlists', 'playlists.id', 'playlist_configurations.playlist_id')
+                    ->where('playlist_link_id', $playlistLinkId);
+                }])
             ->get()
+            ->sortBy(function ($item, $key) {
+                return $item->config->step ?? $key;
+            })
             ->toArray();
 
-        foreach ($playlistConfigurations as $i => $config) {
-            $playlistConfigurations[$i]['model'] = json_decode($config['config'], true);
-            $playlistConfigurations[$i]['configComponent'] = ['component' => $config['component'], 'id' => $config['option_id']];
-            $playlistConfigurations[$i]['itemId'] = $i + 1;
+        $playlistConfigurations = array_values($playlistConfigurations);
 
-            unset($playlistConfigurations[$i]['config']);
+        $step = 0;
+        foreach ($playlistConfigurations as $i => $config) {
+            if ($config['config'] === null) {
+                $playlistConfigurations[$i]['config'] = [];
+                $playlistConfigurations[$i]['config']['step'] = $step;
+                $playlistConfigurations[$i]['config']['active'] = 0;
+                $step++;
+            } else {
+                $playlistConfigurations[$i]['config'] = $config['config']['config'];
+                $playlistConfigurations[$i]['config']['step'] = $config['config']['step'];
+                $playlistConfigurations[$i]['config']['active'] = $config['config']['active'];
+            }
         }
 
         return $playlistConfigurations;
-    }
-
-    public function runConfig($playlistId) {
-
     }
 }

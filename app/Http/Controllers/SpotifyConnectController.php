@@ -10,6 +10,7 @@ use App\Models\SpotifyAuth;
 use App\Models\User;
 use App\Services\CacheService;
 use App\Services\SpotifyService;
+use Illuminate\Http\RedirectResponse;
 
 class SpotifyConnectController extends Controller
 {
@@ -28,9 +29,13 @@ class SpotifyConnectController extends Controller
      * Connect to spotify and get authorisation url. Pass this to the front end.
      * @return Response
      */
-    public function connect(): Response
+    public function connect(): Response|RedirectResponse
     {
         $authorizationUrl = $this->spotifyService->connect();
+
+        if (Auth::check()) {
+            return redirect($authorizationUrl);
+        }
 
         return Inertia::render('Auth/Connect', [
             'link' => $authorizationUrl
@@ -86,9 +91,7 @@ class SpotifyConnectController extends Controller
                 $sAuth->save();
 
                 //Add token to cache.
-                $this->cacheService->setCacheItem($spotUser->spotify_id, $responseData['access_token'], now()->addMinutes(50));
-
-                Auth::login($spotUser);
+                $this->cacheService->setCacheItem($spotUser->spotify_id, $responseData['access_token'], now()->addDays(50));
 
                 return redirect()->route('dashboard');
             }

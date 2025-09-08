@@ -1,48 +1,28 @@
+<script setup>
+import { faCompactDisc } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+</script>
+
 <template>
     <div class="flex items-center h-28 w-full justify-center fill-current text-gray-500">
         <div class="letter-tiles">
             <span class="emerald">
                 P
             </span>
-            <span>
-                L
+            <span v-for="(letter, index) of ['L', 'A', 'Y', 'L', 'I', 'S', 'T']" :key="index">
+                {{ letter }}
             </span>
-            <span>
-                A
-            </span>
-            <span>
-                Y
-            </span>
-            <span>
-                L
-            </span>
-            <span>
-                I
-            </span>
-            <span>
-                S
-            </span>
-            <span>
-                T
-            </span>            
         </div>
-        <img src="/images/logo.png" class="w-auto h-4/5 mx-2.5"/>
+        <div>
+            <font-awesome-icon :icon="faCompactDisc" size="3x" class="ml-4 mr-4 text-gray-800"/>
+        </div>
         <div class="letter-tiles">
             <span class="cyan">
                 T
             </span>
-            <span>
-                O
-            </span>
-            <span>
-                O
-            </span>
-            <span>
-                L
-            </span>
-            <span>
-                S
+            <span v-for="(letter, index) of ['O','O','L','S']" :key="index">
+                {{ letter }}
             </span>
         </div>
-    </div>   
+    </div>
 </template>

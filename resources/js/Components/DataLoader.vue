@@ -26,19 +26,19 @@ const onCompleteText = ref(props.finishedText);
 const loadData = function () {
     loading.value = true;
     axios.get(props.dataRoute)
-    .then(function (response) {
+        .then(function (response) {
         // handle success
-        if (typeof response.data.error !== 'undefined') {
-            console.log('error!');
-        }
+            if (typeof response.data.error !== 'undefined') {
+                console.log('error!');
+            }
 
-        loading.value = false;
-        if (props.finishedText === null) {
-            onCompleteText.value = 'found ' + response.data.length + ' results';
-        }
+            loading.value = false;
+            if (props.finishedText === null) {
+                onCompleteText.value = 'found ' + response.data.length + ' results';
+            }
 
-        emit('dataReturned', response.data);
-    });
+            emit('dataReturned', response.data);
+        });
 };
 
 loadData();
@@ -47,6 +47,6 @@ loadData();
 
 <template>
     <div>
-        <Loader :loading-text="loadingText" :loading-state="loading" :finished-text="onCompleteText" />
+        <Loader :loading-text="loadingText" :loading-state="loading" :finished-text="onCompleteText"/>
     </div>
 </template>

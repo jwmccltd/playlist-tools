@@ -1,11 +1,17 @@
 <script setup>
 const props = defineProps({
-   config: {
+    config: {
         type: Object,
-   },
-   fields: {
+        required: true,
+    },
+    fields: {
         type: Object,
-   }
+        required: true,
+    },
+    componentName: {
+        type: String,
+        required: true,
+    },
 });
 
 </script>
@@ -13,18 +19,18 @@ const props = defineProps({
 <template>
     <div class="pl-8">
         <div class="panel bg-white">
-            <strong>{{ config.component ?? config.configComponent.component }}</strong>
+            <strong>{{ componentName }}</strong>
         </div>
     </div>
     <div v-for="(field, ident) of fields" :key="ident">
         <div v-if="field.type !== 'modal-select'" class="panel bg-white m-2">
-            {{ field.label }} {{ props.config.model[ident] }}
+            {{ field.label }} {{ props.config[ident] }}
         </div>
-        <div v-else-if="props.config.model[ident].length > 0" class="panel bg-white m-2">
+        <div v-else-if="props.config[ident].length > 0" class="panel bg-white m-2">
             {{ field.label }}
             <span class="letter-tiles">
                 <span class="cyan small">
-                    {{ props.config.model[ident].length }}
+                    {{ props.config[ident].length }}
                 </span>
             </span>
         </div>

@@ -22,8 +22,16 @@ class PlaylistConfigurationOption extends Model
     /**
      * Get the phone associated with the user.
      */
-    public function configFields(): HasOne
+    public function fields(): HasOne
     {
         return $this->hasOne(PlaylistConfigurationOptionField::class, 'option_id');
+    }
+
+    /**
+     * Get the phone associated with the user.
+     */
+    public function config(): HasOne
+    {
+        return $this->hasOne(PlaylistConfiguration::class, 'option_id');
     }
 }

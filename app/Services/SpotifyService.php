@@ -9,7 +9,8 @@ use App\Services\CacheService;
 
 class SpotifyService
 {
-    public function __construct(protected CacheService $cacheService) {
+    public function __construct(protected CacheService $cacheService)
+    {
         // Constructor.
     }
 
@@ -17,7 +18,8 @@ class SpotifyService
      * Connect to spotify and return the authorisation url.
      * @return string
      */
-    public function connect() {
+    public function connect()
+    {
         // Spotify API credentials
         $clientId =     env('SPOTIFY_CLIENT_ID');
         $clientSecret = env('SPOTIFY_CLIENT_SECRET');
@@ -114,11 +116,22 @@ class SpotifyService
      * @param string  $accessToken The access token.
      * @param string  $protocol    The protocol if not GET.
      * @param string  $body        The body (JSON).
+     * @param mixed   $fields      The fields to restrict on.
      *
      * @return string
      */
-    public function apiRequest($apiUrl, $userId = null, $accessToken = null, $protocol = null, ?string $body = null)
+    public function apiRequest($apiUrl, $userId = null, $accessToken = null, $protocol = null, ?string $body = null, $fields = null)
     {
+        if ($fields !== null) {
+            if (!is_array($fields)) {
+                $apiUrl = $apiUrl . '?' . http_build_query([
+                    'fields' => $fields
+                ]);
+            } else {
+                $apiUrl = $apiUrl . '?' . http_build_query($fields);
+            }
+        }
+
         // Get access token
         if ($accessToken === null) {
             $accessToken = $this->getSetAccessToken($userId);
@@ -151,6 +164,7 @@ class SpotifyService
 
     /**
      * Get/set access token
+     * @param integer $userId The user id.
      * @return string|null
      */
     public function getSetAccessToken($userId)

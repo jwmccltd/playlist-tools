@@ -2,9 +2,7 @@
 
 namespace App\Jobs;
 
-use App\PlaylistConfigs\Operations\ExcludeArtistTracks;
-use App\PlaylistConfigs\Operations\ExcludeTracks;
-use App\PlaylistConfigs\Operations\AddToPlaylist;
+use App\PlaylistConfigs\Operations\CheckSelectedTracksAndArtists;
 use App\PlaylistConfigs\Operations\DeDuplicate;
 use App\Services\DataService;
 use Illuminate\Bus\Queueable;
@@ -15,37 +13,39 @@ use Illuminate\Queue\SerializesModels;
 
 class DeDuplicator implements ShouldQueue
 {
-    public $selectedPlaylistData, $config, $playlistLinkId, $userId;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use CheckSelectedTracksAndArtists;
+    use DeDuplicate;
 
-    use ExcludeArtistTracks, ExcludeTracks, AddToPlaylist, DeDuplicate;
+    public $selectedPlaylistData;
+    public $config;
+    public $playlistLinkId;
+    public $userId;
 
     /**
      * Create a new job instance.
+     * @return void
      */
     public function __construct(protected DataService $dataService, $config, $playlistLinkId, $userId)
     {
         $this->config = $config;
         $this->playlistLinkId = $playlistLinkId;
-        $this->selectedPlaylistData = $this->dataService->getData('playlist', 'playlists/' . $playlistLinkId, $userId);
+
+        $fields = 'items(added_at,track(id,uri,name,artists(id,name))),next,total';
+        $this->selectedPlaylistData = $this->dataService->getData('tracks', 'playlists/' . $playlistLinkId . '/tracks', $userId, $fields);
         $this->userId = $userId;
     }
 
-
     /**
      * Execute the job.
+     * @return void
      */
     public function handle(): void
     {
-        if (!empty($this->config->selectedArtists)) {
-            $this->excludeArtistTracks($this->config->selectedArtists);
-        }
-
-        if (!empty($this->config->selectedTracks)) {
-            $this->excludeTracks($this->config->selectedTracks);
-        }
-
-        $this->deduplicate($this->config->deduplicateBy);
+        $this->deduplicate($this->config);
     }
 }

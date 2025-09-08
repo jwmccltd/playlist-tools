@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class PlaylistConfiguration extends Model
+class PlaylistConfigurationSchedule extends Model
 {
     use HasFactory;
 
@@ -14,15 +14,11 @@ class PlaylistConfiguration extends Model
      *
      * @var string
      */
-    protected $table = 'playlist_configurations';
+    protected $table = 'playlist_configuration_schedule';
 
     public $timestamps = false;
 
-    protected $fillable = [
-        'option_id', 'playlist_id', 'config'
-    ];
-
     protected $casts = [
-        'config' => 'array',
+        'days' => 'object',
     ];
 }

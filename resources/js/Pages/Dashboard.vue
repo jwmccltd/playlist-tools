@@ -1,6 +1,6 @@
 <script setup>
 import LayoutBase from '@/Layouts/LayoutBase.vue';
-import LayoutFull from '@/Layouts/LayoutFull.vue';
+import LayoutContain from '@/Layouts/LayoutContain.vue';
 import MyPlaylists from '@/Components/MyPlaylists.vue';
 import { Head } from '@inertiajs/vue3';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
@@ -19,7 +19,7 @@ defineProps({
 
     <LayoutBase>
         <template #layout>
-            <LayoutFull>
+            <LayoutContain>
                 <template #logo>
                     <ApplicationLogo/>
                 </template>
@@ -27,7 +27,7 @@ defineProps({
                 <template #content>
                     <MyPlaylists class="main-content" :playlists-with-configs/>
                 </template>
-            </LayoutFull>
+            </LayoutContain>
         </template>
     </LayoutBase>
 </template>

@@ -4,7 +4,7 @@ import { Link } from '@inertiajs/vue3';
 </script>
 
 <template>
-    <div class="">
+    <div>
         <div>
             <Link href="/">
                 <slot name="logo"/>

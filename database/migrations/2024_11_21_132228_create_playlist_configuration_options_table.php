@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name', 200);
             $table->string('component', 200);
+            $table->boolean('is_global')->default(false);
         });
     }
 

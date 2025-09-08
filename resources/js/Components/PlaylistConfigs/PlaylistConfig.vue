@@ -1,8 +1,6 @@
 <script setup>
 
 import { ref, inject, watch } from 'vue';
-import Plus from '@/Components/Symbols/Plus.vue';
-import Arrow from '@/Components/Symbols/Arrow.vue';
 import ModalSelect from '@/Components/FieldComponents/ModalSelect.vue';
 
 const configModel = defineModel();
@@ -10,15 +8,25 @@ const configModel = defineModel();
 const props = defineProps({
     errors: {
         type: Object,
+        default: () => {
+            return {};
+        },
     },
     itemId: {
         type: Number,
+        required: true,
     },
     optionId: {
         type: Number,
+        required: true,
     },
     fields: {
         type: Object,
+        required: true,
+    },
+    componentName: {
+        type: String,
+        required: true,
     },
 });
 
@@ -45,15 +53,20 @@ watch(() => props.fields, () => {
 
 </script>
 <template>
+    <div class="pl-8">
+        <div class="panel bg-white tool-panel">
+            <strong>{{ componentName }}</strong>
+        </div>
+    </div>
     <template v-for="(field, ident) of configFields" :key="ident">
-        <div v-if="field.type === 'number'" class="panel bg-white m-2">
+        <div v-if="field.type === 'number'" class="panel tool-panel bg-white m-2">
             <p>{{ field.label }}<span><input v-model="configModel[ident]" class="mx-1.5 w-24" type="number"></span></p>
             <div v-if="typeof errors[itemId] !== 'undefined' && errors[itemId][ident]" class="mt-2 text-red-600">
                 <p class="text-center">{{ errors[itemId][ident][0] }}</p>
             </div>
         </div>
 
-        <div v-else-if="field.type === 'dropdown'" class="panel bg-white m-2">
+        <div v-else-if="field.type === 'dropdown'" class="panel tool-panel bg-white m-2">
             <div class="flex flex-row items-center">
                 <div>
                     <p>{{ field.label }}</p>
@@ -77,8 +90,5 @@ watch(() => props.fields, () => {
                 :data="getDataSource(field.dataSource)"
                 :option-display="field.optionDisplay ?? []"/>
         </div>
-
-        <Arrow v-if="field.arrow === 1"/>
-        <Plus v-if="field.plus === 1"/>
     </template>
 </template>
