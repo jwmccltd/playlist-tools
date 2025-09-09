@@ -90,6 +90,8 @@ class SpotifyConnectController extends Controller
                 $sAuth->user_id               = $spotUser->id;
                 $sAuth->save();
 
+                Auth::login($spotUser);
+
                 //Add token to cache.
                 $this->cacheService->setCacheItem($spotUser->spotify_id, $responseData['access_token'], now()->addDays(50));
 

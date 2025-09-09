@@ -14,15 +14,11 @@ const props = defineProps({
     },
     itemId: {
         type: Number,
-        required: true,
-    },
-    optionId: {
-        type: Number,
-        required: true,
+        default: null,
     },
     fields: {
         type: Object,
-        required: true,
+        default: null,
     },
     componentName: {
         type: String,
@@ -40,13 +36,15 @@ const getDataSource = function (dataSourceString) {
 
 const configFields = ref(props.fields);
 
-for (const [ident, data] of Object.entries(configFields.value)) {
-    if (data.default && (typeof configModel.value[ident] === 'undefined' || configModel.value[ident] === null)) {
-        configModel.value[ident] = data.default;
-    }
-};
+if (configFields.value !== null) {
+    for (const [ident, data] of Object.entries(configFields.value)) {
+        if (data.default && (typeof configModel.value[ident] === 'undefined' || configModel.value[ident] === null)) {
+            configModel.value[ident] = data.default;
+        }
+    };
+}
 
-// Watch for changes in props.optionId.
+// Watch for changes in props.fields.
 watch(() => props.fields, () => {
     configFields.value = props.fields;
 });

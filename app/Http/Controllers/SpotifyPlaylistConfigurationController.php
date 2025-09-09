@@ -164,7 +164,7 @@ class SpotifyPlaylistConfigurationController extends Controller
      * @param Request $request The request object.
      * @return integer.
      */
-    public function store(Request $request): Integer
+    public function store(Request $request): int
     {
         $request->validate([
             'configOptionId' => 'required|integer',
@@ -173,7 +173,9 @@ class SpotifyPlaylistConfigurationController extends Controller
         $optionFields = $this->playlistConfigurationOptionField->where('option_id', $request->input('configOptionId'))->first();
         $optionFields = $optionFields->config_fields;
 
-        $this->validateData($request, $optionFields);
+        if (!empty($optionFields)) {
+            $this->validateData($request, $optionFields);
+        }
 
         $playlist = Playlist::where('playlist_link_id', $request->input('playlistLinkId'))->first();
 

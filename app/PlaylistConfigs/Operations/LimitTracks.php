@@ -48,8 +48,8 @@ trait LimitTracks
 
         $this->dataService->sendRequest("playlists/$this->playlistLinkId/tracks", $this->userId, json_encode($delTracks), 'DELETE');
 
-        if (!empty($this->config['selectedPlaylists']) && !empty($trackListURIs)) {
-            $this->addToPlaylists($this->config['selectedPlaylists'], $trackListURIs);
+        if (!empty($this->config['moveToSelectedPlaylists']) && !empty($trackListURIs)) {
+            $this->addToPlaylists($this->config['moveToSelectedPlaylists'], $trackListURIs);
         }
     }
 }

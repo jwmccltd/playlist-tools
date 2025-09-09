@@ -18,36 +18,49 @@ import draggable from 'vuedraggable';
 const props = defineProps({
     playlistLinkId: {
         type: String,
+        required: true,
     },
     playlistName: {
         type: String,
+        required: true,
     },
     playlistImageUrl: {
         type: String,
+        required: true,
     },
     playlistDescription: {
         type: String,
+        required: true,
     },
     playlistFollowers: {
         type: String,
+        required: true,
     },
     playlistTrackTotal: {
         type: String,
+        required: true,
     },
     playlistArtists: {
-        type: Object
+        type: Object,
+        required: true,
     },
     playlists: {
-        type: Object
+        type: Object,
+        required: true,
     },
     playlistTracks: {
-        type: Object
+        type: Object,
+        required: true,
     },
     playlistConfigurations: {
-        type: Object
+        type: Object,
+        required: true,
     },
     playlistConfigurationSchedule: {
-        type: Object
+        type: Object,
+        default: () => {
+            return {};
+        },
     },
 });
 
@@ -251,7 +264,6 @@ const hasActiveConfigs = computed(() =>
                                 v-model="config.config"
                                 :component-name="config.component"
                                 :fields="config.fields.config_fields"
-                                :option-id="config.option_id"
                                 :errors="errors"/>
                         </div>
                     </div>
@@ -278,7 +290,6 @@ const hasActiveConfigs = computed(() =>
                                 v-if="element.config.active === 0"
                                 v-model="element.config"
                                 :fields="element.fields.config_fields"
-                                :option-id="element.option_id"
                                 :item-id="element.item_id"
                                 :component-name="element.component"
                                 :errors="errors"/>

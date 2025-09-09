@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\PlaylistConfigs\Operations\CheckSelectedTracksAndArtists;
-use App\PlaylistConfigs\Operations\DeDuplicate;
+use App\PlaylistConfigs\Operations\RemoveUnplayable;
 use App\Services\DataService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -11,7 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class DeDuplicator implements ShouldQueue
+class UnplayableRemover implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
@@ -19,7 +19,7 @@ class DeDuplicator implements ShouldQueue
     use SerializesModels;
 
     use CheckSelectedTracksAndArtists;
-    use DeDuplicate;
+    use RemoveUnplayable;
 
     public $selectedPlaylistData;
     public $config;
@@ -47,6 +47,6 @@ class DeDuplicator implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->deduplicate($this->config);
+        $this->removeUnplayable($this->config);
     }
 }

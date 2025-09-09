@@ -8,6 +8,7 @@ use App\Models\PlaylistConfigurationSchedule;
 use App\Models\Playlist;
 use App\Jobs\DeDuplicator;
 use App\Jobs\TrackLimiter;
+use App\Jobs\UnplayableRemover;
 use Illuminate\Support\Facades\Bus;
 use DateTime;
 use Carbon\Carbon;
@@ -47,11 +48,11 @@ class RunPlaylistConfig
         $currentDateTime = Carbon::now();
         $runAtDateTime = Carbon::parse($runAtDateTime);
 
-        if ($runAtDateTime < $currentDateTime) {
+        if ($runAtDateTime->lt($currentDateTime)) {
             return;
         }
 
-        if ($lastRunDateTime === null || ($runAtDateTime->gte($currentDateTime) && ($currentDateTime->gt($lastRunDateTime)))) {
+        if ($lastRunDateTime === null || !Carbon::parse($lastRunDateTime)->isSameDay($currentDateTime)) {
             $this->run($playlistLinkId, $userId);
         }
     }
@@ -114,6 +115,14 @@ class RunPlaylistConfig
 
         foreach ($playlistConfigs as $config) {
             switch ($config['component']) {
+                case 'UnplayableRemover':
+                    $jobs[] = new UnplayableRemover(
+                        $this->dataService,
+                        array_merge($config['config'], $globalConfig['config']),
+                        $playlistLinkId,
+                        $userId
+                    );
+                    break;
                 case 'DeDuplicator':
                     $jobs[] = new DeDuplicator(
                         $this->dataService,
@@ -143,7 +152,10 @@ class RunPlaylistConfig
 
         $playlist = Playlist::where('playlist_link_id', $playlistLinkId)->first();
         $playlistConfigSchedule = PlaylistConfigurationSchedule::where('playlist_id', $playlist->id)->first();
-        $playlistConfigSchedule->last_run = now();
-        $playlistConfigSchedule->save();
+
+        if ($playlistConfigSchedule) {
+            $playlistConfigSchedule->last_run = Carbon::now();
+            $playlistConfigSchedule->save();
+        }
     }
 }

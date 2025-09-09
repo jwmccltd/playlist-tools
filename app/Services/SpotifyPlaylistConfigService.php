@@ -68,7 +68,7 @@ class SpotifyPlaylistConfigService
 
         $playlistConfigurations = array_values($playlistConfigurations);
 
-        $step = 0;
+        $step = 1;
         foreach ($playlistConfigurations as $i => $config) {
             if ($config['config'] === null) {
                 $playlistConfigurations[$i]['config'] = [];

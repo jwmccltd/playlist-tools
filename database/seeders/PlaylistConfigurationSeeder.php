@@ -40,6 +40,23 @@ class PlaylistConfigurationSeeder extends Seeder
             'is_global' => 1,
         ];
 
+        $unplayableRemover = [
+            'name'      => 'Remove unplayable tracks',
+            'component' => 'UnplayableRemover',
+            'config-fields' => [
+                'overrideGlobal' => [
+                    'label'      => 'Override Global Settings',
+                    'type'       => 'dropdown',
+                    'validation' => 'required',
+                    'default'    => 'yes',
+                    'options'    => [
+                        [ 'value' => 'yes', 'text' => 'Yes' ],
+                        [ 'value' => 'no', 'text' => 'No' ]
+                    ],
+                ],
+            ],
+        ];
+
         $trackLimiter = [
             'name'      => 'Limit the playlist max track count',
             'component' => 'TrackLimiter',
@@ -86,6 +103,7 @@ class PlaylistConfigurationSeeder extends Seeder
         ];
 
         $configs[] = $artistTrackFilter;
+        $configs[] = $unplayableRemover;
         $configs[] = $trackLimiter;
         $configs[] = $deduplicator;
 
@@ -98,7 +116,7 @@ class PlaylistConfigurationSeeder extends Seeder
 
             PlaylistConfigurationOptionField::create([
                 'option_id'     => $configOption->id,
-                'config_fields' => $config['config-fields'],
+                'config_fields' => $config['config-fields'] ?? null,
             ]);
         }
     }

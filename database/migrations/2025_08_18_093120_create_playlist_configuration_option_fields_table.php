@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreign('option_id')
                 ->references('id')->on('playlist_configuration_options')
                 ->onDelete('cascade');
-            $table->json('config_fields');
+            $table->json('config_fields')->nullable();
         });
     }
 

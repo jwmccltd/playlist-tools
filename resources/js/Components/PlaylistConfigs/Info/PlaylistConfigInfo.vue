@@ -6,7 +6,7 @@ const props = defineProps({
     },
     fields: {
         type: Object,
-        required: true,
+        default: null,
     },
     componentName: {
         type: String,

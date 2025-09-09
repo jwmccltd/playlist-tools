@@ -111,6 +111,7 @@ class DataService
                                 'id' => $track['track']['id'],
                                 'artists' => $track['track']['artists'],
                                 'name' => $track['track']['name'],
+                                'available_markets' => $track['track']['available_markets'],
                             ];
                         }
                     }
