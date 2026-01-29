@@ -111,16 +111,17 @@ class SpotifyService
 
     /**
      * Run an api request
-     * @param string  $apiUrl      The api url.
-     * @param integer $userId      The user id.
-     * @param string  $accessToken The access token.
-     * @param string  $protocol    The protocol if not GET.
-     * @param string  $body        The body (JSON).
-     * @param mixed   $fields      The fields to restrict on.
+     * @param string  $apiUrl                  The api url.
+     * @param integer $userId                  The user id.
+     * @param string  $accessToken             The access token.
+     * @param string  $protocol                The protocol if not GET.
+     * @param string  $body                    The body (JSON).
+     * @param mixed   $fields                  The fields to restrict on.
+     * @param bool    $forceAccessTokenRefresh Force refresh of access token.
      *
      * @return string
      */
-    public function apiRequest($apiUrl, $userId = null, $accessToken = null, $protocol = null, ?string $body = null, $fields = null)
+    public function apiRequest($apiUrl, $userId = null, $accessToken = null, $protocol = null, ?string $body = null, $fields = null, $forceAccessTokenRefresh = false)
     {
         if ($fields !== null) {
             if (!is_array($fields)) {
@@ -134,7 +135,7 @@ class SpotifyService
 
         // Get access token
         if ($accessToken === null) {
-            $accessToken = $this->getSetAccessToken($userId);
+            $accessToken = $this->getSetAccessToken($userId, $forceAccessTokenRefresh);
         }
 
         // Set up cURL
@@ -165,16 +166,17 @@ class SpotifyService
     /**
      * Get/set access token
      * @param integer $userId The user id.
+     * @param bool    $forceAccessTokenRefresh Force refresh of access token.
      * @return string|null
      */
-    public function getSetAccessToken($userId)
+    public function getSetAccessToken($userId, $forceAccessTokenRefresh = false)
     {
         $user = User::find($userId);
 
         $accessToken = $this->cacheService->loadCacheItem($user->spotify_id);
 
         // If the access token is null or different to the user requested token, then request a new one.
-        if ($accessToken !== $user->spotifyAuth->spotify_access_token) {
+        if (($accessToken !== $user->spotifyAuth->spotify_access_token) || $forceAccessTokenRefresh === true) {
             $refreshData = $this->getRefreshData($user->spotifyAuth->spotify_refresh_token);
 
             $accessToken = null;
@@ -182,7 +184,7 @@ class SpotifyService
                 $accessToken = $refreshData['access_token'];
 
                 //Add token to cache.
-                $this->cacheService->setCacheItem($user->spotify_id, $accessToken, now()->addMinutes(50));
+                $this->cacheService->setCacheItem($user->spotify_id, $accessToken, 3000);
 
                 $sAuth = SpotifyAuth::where('user_id', $userId)->first();
                 $sAuth->spotify_access_token = $accessToken;

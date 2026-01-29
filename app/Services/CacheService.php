@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use Cache;
+use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 
 class CacheService

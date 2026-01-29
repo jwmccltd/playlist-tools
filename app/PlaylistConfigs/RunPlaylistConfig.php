@@ -87,11 +87,13 @@ class RunPlaylistConfig
 
     /**
      * Run the config.
-     * @param string $playlistLinkId The playlist link id.
-     * @param int    $userId         The user id.
-     * @param boolean $synchronous   Whether to trigger the job synchonously or not.
+     * @param string  $playlistLinkId The playlist link id.
+     * @param integer $userId         The user id.
+     * @param boolean $synchronous    Whether to trigger the job synchonously or not.
+     *
+     * @return void
      */
-    public function run($playlistLinkId, $userId, $synchronous = false)
+    public function run(string $playlistLinkId, int $userId, bool $synchronous = false)
     {
         $playlistConfigs = PlaylistConfiguration
             ::where('playlist_configurations.active', 1)

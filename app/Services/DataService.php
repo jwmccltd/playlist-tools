@@ -69,6 +69,11 @@ class DataService
         // Decode the response JSON.
         $data = json_decode($data, true);
 
+        if (isset($data['error']) && $data['error']['message'] === 'The access token expired')
+        {
+            $data = $this->spotifyService->apiRequest(env('SPOTIFY_API_URL') . str_replace(',', '/', $url), $userId, fields: $fields, forceAccessTokenRefresh: true);
+        }
+
         $chunkedData = [];
         $returnResults = [];
 
@@ -111,7 +116,7 @@ class DataService
                                 'id' => $track['track']['id'],
                                 'artists' => $track['track']['artists'],
                                 'name' => $track['track']['name'],
-                                'available_markets' => $track['track']['available_markets'],
+                                'available_markets' => $track['track']['available_markets'] ?? [],
                             ];
                         }
                     }

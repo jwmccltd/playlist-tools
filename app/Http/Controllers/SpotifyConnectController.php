@@ -42,6 +42,10 @@ class SpotifyConnectController extends Controller
         ]);
     }
 
+    public function sandbox() {
+        return Inertia::render('Sandbox');
+    }
+
     /**
      * Authorise the spotify request with the generated code.
      * @param Request $request The request.
