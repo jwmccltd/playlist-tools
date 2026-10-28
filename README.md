@@ -1,7 +1,7 @@
 > [!IMPORTANT]
 > ### 🛑 THIS REPOSITORY IS RETIRED & ARCHIVED
 > This project is no longer maintained or updated. The repository has been placed in a read-only state.
-> The backend functionality of this system has been integrated into for the purposes of managing music promotion and playlists. The original intention of releasing this project commercially became untenable due to Spotify's tightening API restrictions and constantly changing schema. 
+> The backend functionality of this system has been integrated into the [James Myhill Music](https://github.com/jwmccltd/james-myhill-music) project for the purposes of managing music promotion and playlists and includes additional integrations with Soundcloud and Instagram. The original intention of releasing this project commercially became untenable due to Spotify's tightening API restrictions and constantly changing schema but it's initial incarnation as a self promotion tool has been moved and evolved. 
 
 ## Playlist Tools
 
